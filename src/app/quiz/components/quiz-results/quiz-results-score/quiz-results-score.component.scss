@@ -1,0 +1,21 @@
+.score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3rem;
+
+  &.correct {
+    background-color: green;
+    color: white;
+  }
+
+  &.neutral {
+    background-color: yellow;
+    color: black;
+  }
+  
+  &.incorrect {
+    background-color: red;
+    color: white
+  }
+}

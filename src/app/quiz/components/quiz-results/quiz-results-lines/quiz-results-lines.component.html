@@ -1,0 +1,12 @@
+<div class="quiz-line" *ngFor="let quizLine of quizLines">
+  <!-- InnerHTML necessary here to sanitize question -->
+  <div [innerHTML]="quizLine.question"></div>
+  <div class="quiz-answers">
+    <ng-container *ngFor="let answer of quizLine.answers">
+      <button [ngClass]="answer | qzmAnswerColor:quizLine">
+        <!-- InnerHTML necessary here to sanitize button text -->
+        <span [innerHTML]="answer"></span>
+      </button>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<!-- Title -->
+<h1>RESULTS</h1>
+
+<!-- Results -->
+<ng-container *ngIf="quizLines$ | async as quizLines">
+  <!-- Quiz lines -->
+  <qzm-quiz-results-lines [quizLines]="quizLines"></qzm-quiz-results-lines>
+  
+  <!-- Score -->
+  <qzm-quiz-results-score [quizLines]="quizLines"></qzm-quiz-results-score>
+  
+  <!-- Create -->
+  <qzm-quiz-results-create (createNew)="createNewQuiz()"></qzm-quiz-results-create>
+</ng-container>

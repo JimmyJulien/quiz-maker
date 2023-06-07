@@ -1,0 +1,28 @@
+<!-- Quiz loading -->
+<ng-container *ngIf="areQuizLinesLoading; else questions">
+  <div class="loading">Your quiz is loading...</div>
+</ng-container>
+
+<!-- Quiz lines -->
+<ng-template #questions>
+  <ng-container *ngIf="quizLines?.length">
+    <div class="quiz-line" *ngFor="let quizLine of quizLines">
+      <div [innerHTML]="quizLine.question"></div>
+      <div class="quiz-answers">
+        <ng-container *ngFor="let answer of quizLine.answers">
+          <button
+            #button
+            [ngClass]="answer === quizLine.userAnswer ? 'picked' : ''"
+            (click)="pickAnswerForQuestion(answer, quizLine.question)"
+          >
+            <span [innerHTML]="answer"></span>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+    <!-- Submit -->
+    <div class="submit-container">
+      <button *ngIf="isQuizComplete" (click)="onSubmit()">Submit</button>
+    </div>
+  </ng-container>
+</ng-template>

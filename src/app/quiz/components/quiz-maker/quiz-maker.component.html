@@ -1,0 +1,29 @@
+<!-- Quiz Maker KO -->
+<ng-container *ngIf="isQuizMakerKo$ | async; else quizMaker">
+  <div class="ko">
+    {{ QUIZ_MAKER_KO }}
+  </div>
+</ng-container>
+
+<!-- Quiz Maker-->
+<ng-template #quizMaker>
+  <!-- Title -->
+  <h1>QUIZ MAKER</h1>
+
+  <!-- Form -->
+  <qzm-quiz-maker-form 
+    [areQuizCategoriesLoading]="areQuizCategoriesLoading$ | async"
+    [quizCategories]="quizCategories$ | async"
+    [quizDifficulties]="quizDifficulties"
+    (createQuiz)="createQuizLines($event)">
+  </qzm-quiz-maker-form>
+  
+  <!-- Questions -->
+  <qzm-quiz-maker-questions 
+    [areQuizLinesLoading]="areQuizLinesLoading$ | async"
+    [quizLines]="quizLines$ | async"
+    [isQuizComplete]="isQuizComplete$ | async"
+    (pickAnswer)="pickAnswer($event)"
+    (submit)="onSubmit()">
+  </qzm-quiz-maker-questions>
+</ng-template>

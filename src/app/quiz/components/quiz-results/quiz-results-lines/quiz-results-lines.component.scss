@@ -1,0 +1,31 @@
+.quiz-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem;
+
+  .quiz-answers {
+    display: flex;
+    gap: 1rem;
+
+    button {
+      pointer-events: none;
+      min-height: 2rem;
+      font-size: 1.1rem;
+      background-color: transparent;
+      color: green;
+      border: 1px solid green;
+      border-radius: 0.25rem;
+
+      &.correct {
+        background-color: green;
+        color: white;
+      }
+
+      &.incorrect {
+        background-color: red;
+        color: white
+      }
+    }
+  }
+}
