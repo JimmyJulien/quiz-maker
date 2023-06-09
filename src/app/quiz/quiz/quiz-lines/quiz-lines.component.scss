@@ -1,0 +1,36 @@
+.loading {
+  font-size: 1.5rem;
+}
+
+.quiz-line {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem;
+
+  .quiz-answers {
+    display: flex;
+    gap: 1rem;
+
+    button {
+      cursor: pointer;
+      min-height: 2rem;
+      font-size: 1.1rem;
+      background-color: transparent;
+      color: green;
+      border: 1px solid green;
+      border-radius: 0.25rem;
+
+      &:hover {
+        background-color: green;
+        color: white;
+      }
+  
+      &.picked {
+        background-color: green;
+        color: white;
+      }
+    }
+  }
+}

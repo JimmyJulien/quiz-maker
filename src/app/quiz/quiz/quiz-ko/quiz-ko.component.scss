@@ -1,0 +1,22 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+
+  button {
+    cursor: pointer;
+    height: 2rem;
+    font-size: 1.1rem;
+    background-color: darkgrey;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    width: 100%;
+
+    &:hover {
+      background-color: grey;
+    }
+  }
+}

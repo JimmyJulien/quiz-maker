@@ -1,0 +1,22 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  width: 100%;
+
+  button {
+    cursor: pointer;
+    height: 2rem;
+    font-size: 1.1rem;
+    background-color: darkgrey;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    width: 70%;
+
+    &:hover {
+      background-color: grey;
+    }
+  }
+}
