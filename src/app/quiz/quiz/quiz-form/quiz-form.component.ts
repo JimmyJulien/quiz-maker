@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { QuizCategoryModel } from 'src/app/shared/models/quiz-category.model';
+import { Subscription, tap } from 'rxjs';
 import { QuizConfigModel } from 'src/app/shared/models/quiz-config.model';
 import { QuizDifficultyModel } from 'src/app/shared/models/quiz-difficulty.model';
 
@@ -10,37 +10,101 @@ import { QuizDifficultyModel } from 'src/app/shared/models/quiz-difficulty.model
   styleUrls: ['./quiz-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class QuizFormComponent {
+export class QuizFormComponent implements OnInit, OnDestroy {
 
   readonly CATEGORY_FIELD = 'category';
+  readonly SUBCATEGORY_FIELD = 'subcategory';
   readonly DIFFICULTY_FIELD = 'difficulty';
 
   /** Quiz categories loading indicator from the parent */
   @Input() areQuizCategoriesLoading: boolean | null = false;
 
   /** Quiz categories from the parent */
-  @Input() quizCategories: QuizCategoryModel[] | null = [];
+  @Input() quizCategories: string[] | null = [];
   
+  /** Quiz subcategories from the parent */
+  @Input() quizSubcategories: string[] | null = [];
+
   /** Quiz difficulties from the parent */
   @Input() quizDifficulties: QuizDifficultyModel[] = [];
+
+  /** Select a category */
+  @Output() selectCategory = new EventEmitter<string>();
 
   /** Create quiz event emitter to the parent*/
   @Output() createQuiz = new EventEmitter<QuizConfigModel>();
 
   /** Quiz form */
-  form = new FormGroup({
-    category: new FormControl(null, Validators.required),
-    difficulty: new FormControl(null, Validators.required),
-  });
+  form!: FormGroup;
 
   /** Category control getter */
   get categoryControl(): FormControl {
     return this.form.get(this.CATEGORY_FIELD) as FormControl;
   }
 
+  /** Subcategory control getter */
+  get subcategoryControl(): FormControl {
+    return this.form.get(this.SUBCATEGORY_FIELD) as FormControl;
+  }
+
   /** Difficulty control getter */
   get difficultyControl(): FormControl {
     return this.form.get(this.DIFFICULTY_FIELD) as FormControl;
+  }
+
+  /** Main subscription used to handle unsubscription on component destruction */
+  subscription = new Subscription();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Handle first call before ngOnOnInit (form not yet initialized)
+    if(!this.form) return;
+
+    // Add required validator if subcategories
+    if(changes['quizSubcategories']) {
+      if(this.quizSubcategories && this.quizSubcategories.length > 0) {
+        this.subcategoryControl.addValidators(Validators.required);
+      }
+      else {
+        this.subcategoryControl.removeValidators(Validators.required);
+      }
+
+      // Update form validity
+      this.subcategoryControl.updateValueAndValidity();
+    }
+  }
+
+  ngOnInit(): void {
+    this.initializeForm();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  /**
+   * Initialize the quiz form and its controls
+   */
+  private initializeForm(): void {
+    // Initialize form
+    this.form = new FormGroup({
+      [this.CATEGORY_FIELD]: new FormControl(null, Validators.required),
+      [this.SUBCATEGORY_FIELD]: new FormControl(null),
+      [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required),
+    });
+
+    this.subscription.add(
+      this.categoryControl.valueChanges
+      .pipe(
+        tap(category => {
+          // Emit selected category
+          this.selectCategory.emit(category);
+
+          // Reset subcategory
+          this.subcategoryControl.setValue(null);
+        })
+      )
+      .subscribe()
+    );
   }
 
   /**

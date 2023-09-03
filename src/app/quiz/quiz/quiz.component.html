@@ -14,7 +14,9 @@
   <qzm-quiz-form 
     [areQuizCategoriesLoading]="areQuizCategoriesLoading$ | async"
     [quizCategories]="quizCategories$ | async"
+    [quizSubcategories]="quizSubcategories$ | async"
     [quizDifficulties]="quizDifficulties"
+    (selectCategory)="selectCategory($event)"
     (createQuiz)="createQuizLines($event)">
   </qzm-quiz-form>
   

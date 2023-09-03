@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, Observable, catchError, finalize, tap } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, catchError, combineLatest, finalize, map, tap } from 'rxjs';
 import { ApiQuestionModel } from 'src/app/api/api-question/api-question.model';
 import { ApiCategoryRepositoryService } from '../../api/api-category/api-category-repository.service';
 import { ApiQuestionRepositoryService } from '../../api/api-question/api-question-repository.service';
@@ -17,6 +17,9 @@ import { QuizLineModel } from '../models/quiz-line.model';
 })
 export class QuizMakerService {
 
+  private readonly ENTERTAINMENT_KEYWORD = 'Entertainment';
+  private readonly SCIENCE_KEYWORD = 'Science';
+
   /** Quiz categories loading indicator */
   private areQuizCategoriesLoading$ = new BehaviorSubject<boolean>(false);
 
@@ -25,6 +28,12 @@ export class QuizMakerService {
 
   /** Quiz maker KO indicator */
   private isQuizMakerKo$ = new BehaviorSubject<boolean>(false);
+
+  /** Quiz categories */
+  private quizCategories$ = new BehaviorSubject<QuizCategoryModel[] | null>(null);
+
+  /** Selected quiz category */
+  private selectedQuizCategory$ = new BehaviorSubject<string | null>(null);
 
   /** Quiz lines */
   private quizLines$ = new BehaviorSubject<QuizLineModel[]>([]);
@@ -63,21 +72,88 @@ export class QuizMakerService {
   }
 
   /**
-   * Get the quiz categories
+   * Initialize the quiz categories
    * @returns the quiz categories
    */
-  getQuizCategories(): Observable<QuizCategoryModel[]> {
+  initializeQuizCategories(): Observable<QuizCategoryModel[]> {
     // Start categories loading
     this.areQuizCategoriesLoading$.next(true);
 
     return this.apiCategoryRepositoryService.getCategories()
     .pipe(
+      map(categories =>
+        categories.map(category => {
+          // Entertainment case
+          if(category.name.includes(`${this.ENTERTAINMENT_KEYWORD}: `)) {
+            return {
+              id: category.id,
+              name: this.ENTERTAINMENT_KEYWORD,
+              subcategory: category.name.split(`${this.ENTERTAINMENT_KEYWORD}: `)[1],
+            };
+          }
+
+          // Science case
+          if(category.name.includes(`${this.SCIENCE_KEYWORD}: `)) {
+            return {
+              id: category.id,
+              name: this.SCIENCE_KEYWORD,
+              subcategory: category.name.split(`${this.SCIENCE_KEYWORD}: `)[1],
+            };
+          }
+
+          // Others
+          return {
+            id: category.id,
+            name: category.name,
+            subcategory: null,
+          };
+        })
+      ),
+      // Initialize quiz categories
+      tap(categories => this.quizCategories$.next(categories)),
       // Handle error while retrieving categories
       catchError((error: HttpErrorResponse) => 
           this.handleQuizError('Error retrieving categories', error)
         ),
       // Stop categories loading even if an error occurs
       finalize(() => this.areQuizCategoriesLoading$.next(false))
+    );
+  }
+
+  /**
+   * Get quiz categories
+   * @returns quiz categories
+   */
+  getQuizCategories(): Observable<string[] | null> {
+    return this.quizCategories$.asObservable()
+      .pipe(
+        map(categories => categories?.map(category => category.name)),
+        map(categories => [...new Set(categories)])
+      );
+  }
+
+  /**
+   * Get quiz subcategories
+   * @returns quiz subcategories
+   */
+  getQuizSubcategories(): Observable<string[] | null> {
+    return combineLatest([
+      this.quizCategories$,
+      this.selectedQuizCategory$,
+    ])
+    .pipe(
+      map(([categories, selectedCategory]) => {
+        // If no category, no subcategory
+        if(!categories) return null;
+
+        // Else filter on selected category and get only distinct subcategory name
+        const nonDistinctSubcategories = categories
+          .filter(category => category.subcategory && category.name === selectedCategory)
+          .map(category => category.subcategory!);
+
+        // Return distinct subcategories
+        return [...new Set(nonDistinctSubcategories)];
+      })
     );
   }
 
@@ -121,6 +197,14 @@ export class QuizMakerService {
   }
 
   /**
+   * Select a new category
+   * @param category the new selected category
+   */
+  selectCategory(category: string): void {
+    this.selectedQuizCategory$.next(category);
+  }
+
+  /**
    * Create quiz lines from a quiz configuration
    * @param quizConfig the quiz configuration
    * @returns the quiz lines
@@ -129,10 +213,23 @@ export class QuizMakerService {
     // Start quiz lines loading
     this.areQuizLinesLoading$.next(true);
 
-    // Get quiz questions
-    // Note: quizConfig category and difficulty can't be null here because
-    // they are required in the form used to create the quiz
-    return this.apiQuestionRepositoryService.getQuestions(quizConfig.category!, quizConfig.difficulty!)
+    // Handle case when no categories defined (should not happen) 
+    if(!this.quizCategories$.value) {
+      throw new Error('Quiz categories must be defined to create a quiz');
+    }
+
+    // Get quiz category corresponding to config category and subcategory
+    const quizCategory = this.quizCategories$.value.find(
+      category => category.name === quizConfig.category
+    );
+
+    // Handle case when category doesn't exist (should not happen)
+    if(!quizCategory) {
+      throw new Error(`Category "${quizConfig.category}" with subcategory "${quizConfig.subcategory}" doesn't exist`);
+    } 
+
+    // Get questions from category id and config difficulty
+    return this.apiQuestionRepositoryService.getQuestions(quizCategory.id, quizConfig.difficulty!)
       .pipe(
         tap(apiQuestions => {
           this.quizLines$.next(

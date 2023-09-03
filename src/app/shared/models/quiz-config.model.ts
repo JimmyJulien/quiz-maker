@@ -1,5 +1,6 @@
 /** Quiz config model */
 export interface QuizConfigModel {
-  category: number | null;
+  category: string | null;
+  subcategory?: string | null;
   difficulty: string | null;
 }

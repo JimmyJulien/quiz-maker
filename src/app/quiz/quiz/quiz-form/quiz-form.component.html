@@ -12,10 +12,21 @@
         <option [ngValue]="null">
           Select a category
         </option>
-        <option *ngFor="let category of quizCategories" [ngValue]="category.id">
-          {{ category.name }}
+        <option *ngFor="let category of quizCategories" [ngValue]="category">
+          {{ category }}
         </option>
       </select>
+      <!-- Subcategory dropdown -->
+      <ng-container *ngIf="quizSubcategories && quizSubcategories.length > 0">
+        <select [formControlName]="SUBCATEGORY_FIELD" id="subcategorySelect">
+          <option [ngValue]="null">
+            Select a subcategory
+          </option>
+          <option *ngFor="let subcategory of quizSubcategories" [ngValue]="subcategory">
+            {{ subcategory }}
+          </option>
+        </select>
+      </ng-container>
       <!-- Difficulty dropdown -->
       <select [formControlName]="DIFFICULTY_FIELD" id="difficultySelect">
         <option [ngValue]="null">

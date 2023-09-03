@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { QuizAnswerModel } from 'src/app/shared/models/quiz-answer.model';
-import { QuizCategoryModel } from 'src/app/shared/models/quiz-category.model';
 import { QuizConfigModel } from 'src/app/shared/models/quiz-config.model';
 import { QuizDifficultyModel } from 'src/app/shared/models/quiz-difficulty.model';
 import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
@@ -24,7 +23,10 @@ export class QuizComponent implements OnDestroy {
   isQuizMakerKo$ = this.quizMakerService.isQuizMakerKo();
 
   /** Quiz categories from the quiz service */
-  quizCategories$: Observable<QuizCategoryModel[]> = this.quizMakerService.getQuizCategories();
+  quizCategories$: Observable<string[] | null> = this.quizMakerService.getQuizCategories();
+
+  /** Quiz subcategories */
+  quizSubcategories$: Observable<string[] | null> = this.quizMakerService.getQuizSubcategories();
 
   /** Quiz difficulties from the quiz service */
   quizDifficulties: QuizDifficultyModel[] = this.quizMakerService.getQuizDifficulties();
@@ -40,6 +42,12 @@ export class QuizComponent implements OnDestroy {
 
   constructor(private readonly quizMakerService: QuizMakerService) {}
 
+  ngOnInit(): void {
+    this.souscription.add(
+      this.quizMakerService.initializeQuizCategories().subscribe()
+    );
+  }
+
   /**
    * Unsubscribe souscription
    */
@@ -52,6 +60,14 @@ export class QuizComponent implements OnDestroy {
    */
   onReload(): void {
     this.quizMakerService.reloadQuiz();
+  }
+
+  /**
+   * Select a new category
+   * @param category the new selected category
+   */
+  selectCategory(category: string): void {
+    this.quizMakerService.selectCategory(category);
   }
 
   /**
