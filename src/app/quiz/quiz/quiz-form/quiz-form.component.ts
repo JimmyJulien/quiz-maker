@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subscription, tap } from 'rxjs';
 import { QuizConfigModel } from 'src/app/shared/models/quiz-config.model';
 import { QuizDifficultyModel } from 'src/app/shared/models/quiz-difficulty.model';
+import { existingValidator } from '../../../shared/validators/existing.validator';
 
 @Component({
   selector: 'qzm-quiz-form',
@@ -52,6 +53,7 @@ export class QuizFormComponent implements OnInit, OnDestroy {
     return this.form.get(this.DIFFICULTY_FIELD) as FormControl;
   }
 
+  
   /** Main subscription used to handle unsubscription on component destruction */
   subscription = new Subscription();
 
@@ -59,20 +61,34 @@ export class QuizFormComponent implements OnInit, OnDestroy {
     // Handle first call before ngOnOnInit (form not yet initialized)
     if(!this.form) return;
 
-    // Add required validator if subcategories
-    if(changes['quizSubcategories']) {
-      if(this.quizSubcategories && this.quizSubcategories.length > 0) {
-        this.subcategoryControl.addValidators(Validators.required);
-      }
-      else {
-        this.subcategoryControl.removeValidators(Validators.required);
-      }
-
-      // Update form validity
-      this.subcategoryControl.updateValueAndValidity();
+    // Update category validators
+    const quizCategories = changes['quizCategories'];
+    if(quizCategories?.currentValue?.length) {
+      this.categoryControl.addValidators(
+        existingValidator(quizCategories.currentValue)
+      );
     }
-  }
 
+    // Update subcategories validators
+    const quizSubcategories = changes['quizSubcategories'];
+
+    if(quizSubcategories?.currentValue?.length) {
+      this.subcategoryControl.addValidators([
+        Validators.required,
+        existingValidator(quizSubcategories.currentValue)
+      ]);
+    }
+    else {
+      this.subcategoryControl.removeValidators([
+        Validators.required,
+        existingValidator(quizSubcategories.currentValue)
+      ]);
+    }
+
+    // Update form validity
+    this.form.updateValueAndValidity();
+  }
+  
   ngOnInit(): void {
     this.initializeForm();
   }
@@ -89,9 +105,10 @@ export class QuizFormComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       [this.CATEGORY_FIELD]: new FormControl(null, Validators.required),
       [this.SUBCATEGORY_FIELD]: new FormControl(null),
-      [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required),
+      [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required)
     });
 
+    // Update category and subcategory when catagory change
     this.subscription.add(
       this.categoryControl.valueChanges
       .pipe(

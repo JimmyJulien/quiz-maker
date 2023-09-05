@@ -1,0 +1,21 @@
+<input
+  [placeholder]="placeholder"
+  [formControl]="control"
+  (focus)="showOptions(true)"
+  (input)="showOptions(true)"
+>
+
+<div
+  *ngIf="options?.length && areOptionsVisible"
+  class="options-container"
+>
+  <div
+    *ngFor="let option of filteredOptions$ | async"
+    class="option"
+    tabindex="0"
+    [innerHTML]="option | qzmBoldFilter:control.value"
+    (click)="onOptionClick(option)"
+    (keydown.Enter)="onOptionClick(option)"
+  >
+  </div>
+</div>

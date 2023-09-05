@@ -8,24 +8,21 @@
   <ng-container *ngIf="quizCategories?.length && quizDifficulties?.length">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <!-- Category dropdown -->
-      <select [formControlName]="CATEGORY_FIELD" id="categorySelect">
-        <option [ngValue]="null">
-          Select a category
-        </option>
-        <option *ngFor="let category of quizCategories" [ngValue]="category">
-          {{ category }}
-        </option>
-      </select>
+      <qzm-dropdown
+        [formControlName]="CATEGORY_FIELD"
+        [options]="quizCategories"
+        placeholder="Enter a category"
+      >
+      </qzm-dropdown>
+      
       <!-- Subcategory dropdown -->
-      <ng-container *ngIf="quizSubcategories && quizSubcategories.length > 0">
-        <select [formControlName]="SUBCATEGORY_FIELD" id="subcategorySelect">
-          <option [ngValue]="null">
-            Select a subcategory
-          </option>
-          <option *ngFor="let subcategory of quizSubcategories" [ngValue]="subcategory">
-            {{ subcategory }}
-          </option>
-        </select>
+      <ng-container *ngIf="quizSubcategories?.length">
+        <qzm-dropdown
+          [formControlName]="SUBCATEGORY_FIELD"
+          [options]="quizSubcategories"
+          placeholder="Enter a subcategory"
+        >
+        </qzm-dropdown>
       </ng-container>
       <!-- Difficulty dropdown -->
       <select [formControlName]="DIFFICULTY_FIELD" id="difficultySelect">
@@ -37,7 +34,7 @@
         </option>
       </select>
       <!-- Create button -->
-      <button type="submit" [disabled]="form.invalid" id="createBtn">
+      <button type="submit" [disabled]="form.pending || form.invalid" id="createBtn">
         Create
       </button>
     </form>

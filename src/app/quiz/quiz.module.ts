@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DropdownComponent } from '../shared/components/dropdown/dropdown.component';
 import { QuizRoutingModule } from './quiz-routing.module';
 import { QuizFormComponent } from './quiz/quiz-form/quiz-form.component';
 import { QuizKoComponent } from './quiz/quiz-ko/quiz-ko.component';
@@ -19,7 +20,8 @@ import { QuizComponent } from './quiz/quiz.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    QuizRoutingModule
+    QuizRoutingModule,
+    DropdownComponent,
   ]
 })
 export class QuizModule {}

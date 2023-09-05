@@ -18,7 +18,7 @@ export class ApiCategoryRepositoryService {
   getCategories(): Observable<ApiCategoryModel[]> {
     return this.http.get<ApiCategoryResponseModel>('https://opentdb.com/api_category.php')
     .pipe(
-      map(apiQuizCategoryResponse => apiQuizCategoryResponse.trivia_categories)
+      map(apiQuizCategoryResponse => apiQuizCategoryResponse.trivia_categories),
     );
   }
 }

@@ -17,9 +17,6 @@ import { QuizLineModel } from '../models/quiz-line.model';
 })
 export class QuizMakerService {
 
-  private readonly ENTERTAINMENT_KEYWORD = 'Entertainment';
-  private readonly SCIENCE_KEYWORD = 'Science';
-
   /** Quiz categories loading indicator */
   private areQuizCategoriesLoading$ = new BehaviorSubject<boolean>(false);
 
@@ -72,6 +69,38 @@ export class QuizMakerService {
   }
 
   /**
+   * Get formatted quiz categories
+   * @returns the formatted quiz categories
+   */
+  getFormattedQuizCategories(): Observable<QuizCategoryModel[]> {
+    // Separator used to identify categories that need formatting
+    const separator = ': ';
+
+    return this.apiCategoryRepositoryService.getCategories()
+    .pipe(
+      map(categories =>
+        categories.map(category => {
+          // If category name contains separator, split to get name and subcategory
+          if(category.name.includes(separator)) {
+            return {
+              id: category.id,
+              name: category.name.split(separator)[0],
+              subcategory: category.name.split(separator)[1]
+            }
+          }
+
+          // Else use category name and no subcategory
+          return {
+            id: category.id,
+            name: category.name,
+            subcategory: null,
+          };
+        })
+      )
+    );
+  }
+
+  /**
    * Initialize the quiz categories
    * @returns the quiz categories
    */
@@ -79,42 +108,14 @@ export class QuizMakerService {
     // Start categories loading
     this.areQuizCategoriesLoading$.next(true);
 
-    return this.apiCategoryRepositoryService.getCategories()
+    return this.getFormattedQuizCategories()
     .pipe(
-      map(categories =>
-        categories.map(category => {
-          // Entertainment case
-          if(category.name.includes(`${this.ENTERTAINMENT_KEYWORD}: `)) {
-            return {
-              id: category.id,
-              name: this.ENTERTAINMENT_KEYWORD,
-              subcategory: category.name.split(`${this.ENTERTAINMENT_KEYWORD}: `)[1],
-            };
-          }
-
-          // Science case
-          if(category.name.includes(`${this.SCIENCE_KEYWORD}: `)) {
-            return {
-              id: category.id,
-              name: this.SCIENCE_KEYWORD,
-              subcategory: category.name.split(`${this.SCIENCE_KEYWORD}: `)[1],
-            };
-          }
-
-          // Others
-          return {
-            id: category.id,
-            name: category.name,
-            subcategory: null,
-          };
-        })
-      ),
       // Initialize quiz categories
       tap(categories => this.quizCategories$.next(categories)),
       // Handle error while retrieving categories
       catchError((error: HttpErrorResponse) => 
-          this.handleQuizError('Error retrieving categories', error)
-        ),
+        this.handleQuizError('Error retrieving categories', error)
+      ),
       // Stop categories loading even if an error occurs
       finalize(() => this.areQuizCategoriesLoading$.next(false))
     );
