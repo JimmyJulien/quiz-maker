@@ -17,6 +17,13 @@
             <span [innerHTML]="answer"></span>
           </button>
         </ng-container>
+        <!-- Change question buttons -->
+        <button
+          *ngIf="canQuestionBeChanged"
+          class="change-question"
+          (click)="onChangeQuizLine(quizLine)">
+          Change question
+        </button>
       </div>
     </div>
   </ng-container>

@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, Observable, catchError, combineLatest, finalize, map, tap } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, catchError, combineLatest, finalize, map, mergeMap, of, retry, tap, throwError } from 'rxjs';
 import { ApiQuestionModel } from 'src/app/api/api-question/api-question.model';
 import { ApiCategoryRepositoryService } from '../../api/api-category/api-category-repository.service';
 import { ApiQuestionRepositoryService } from '../../api/api-question/api-question-repository.service';
@@ -38,6 +38,12 @@ export class QuizMakerService {
   /** Complete quiz indicator */
   private isQuizComplete$ = new BehaviorSubject<boolean>(false);
 
+  /** Quiz config used to create the last quiz */
+  private quizConfig$ = new BehaviorSubject<QuizConfigModel | null>(null)
+
+  /** Indicates if a question can be changed */
+  private canQuestionBeChanged$ = new BehaviorSubject<boolean>(true);
+
   constructor(
     private readonly apiCategoryRepositoryService: ApiCategoryRepositoryService,
     private readonly apiQuestionRepositoryService: ApiQuestionRepositoryService,
@@ -66,6 +72,14 @@ export class QuizMakerService {
    */
   isQuizMakerKo(): Observable<boolean> {
     return this.isQuizMakerKo$.asObservable();
+  }
+
+  /**
+   * Check if the user can change a question
+   * @returns true if question hasn't already been changed, false else
+   */
+  canQuestionBeChanged(): Observable<boolean> {
+    return this.canQuestionBeChanged$.asObservable();
   }
 
   /**
@@ -210,24 +224,21 @@ export class QuizMakerService {
    * @param quizConfig the quiz configuration
    * @returns the quiz lines
    */
-  createQuizLines(quizConfig: QuizConfigModel) {
+  createQuizLines(quizConfig: QuizConfigModel | null): Observable<ApiQuestionModel[]> {
     // Start quiz lines loading
     this.areQuizLinesLoading$.next(true);
-
-    // Handle case when no categories defined (should not happen) 
-    if(!this.quizCategories$.value) {
-      throw new Error('Quiz categories must be defined to create a quiz');
+    
+    // If no config, return empty quiz
+    if(!quizConfig) {
+      this.areQuizLinesLoading$.next(false);
+      return of([]);
     }
 
-    // Get quiz category corresponding to config category and subcategory
-    const quizCategory = this.quizCategories$.value.find(
-      category => category.name === quizConfig.category
-    );
+    // Get quiz category
+    const quizCategory = this.getQuizCategory(quizConfig);
 
-    // Handle case when category doesn't exist (should not happen)
-    if(!quizCategory) {
-      throw new Error(`Category "${quizConfig.category}" with subcategory "${quizConfig.subcategory}" doesn't exist`);
-    } 
+    // Save config in a subject (used for question change)
+    this.quizConfig$.next(quizConfig);
 
     // Get questions from category id and config difficulty
     return this.apiQuestionRepositoryService.getQuestions(quizCategory.id, quizConfig.difficulty!)
@@ -253,11 +264,45 @@ export class QuizMakerService {
    * Update quiz state and complete indicator with a quiz answer
    * @param quizAnswer the quiz answer
    */
-  pickAnswer(quizAnswer: QuizAnswerModel) {
+  pickAnswer(quizAnswer: QuizAnswerModel): void {
     this.updateQuizState(quizAnswer);
     this.updateIsQuizComplete();
   }
 
+  /**
+   * Change the quiz line passed as a parameter
+   * @param quizLineToChange the quiz line to change
+   * @returns the new question
+   */
+  changeQuizLine(quizLineToChange: QuizLineModel): Observable<ApiQuestionModel> {
+    // Get last config category and difficulty
+    const configCategory = this.quizConfig$.value?.category;
+    const configDifficulty = this.quizConfig$.value?.difficulty;
+    const categories = this.quizCategories$.value;
+
+    // If no category, no difficulty or no categories, stop stream
+    if(!configCategory || !configDifficulty || !categories) {
+      return EMPTY;
+    }
+
+    // Get quiz category
+    const quizCategory = this.getQuizCategory(this.quizConfig$.value);
+
+    // Get new lines
+    return this.apiQuestionRepositoryService.getQuestions(quizCategory.id, configDifficulty)
+    .pipe(
+      tap(console.log),
+      // Select new API questions
+      mergeMap(apiQuestions => this.selectNewApiQuestion(apiQuestions)),
+      // Replace quiz line
+      tap(newApiQuestion => this.replaceQuizLine(quizLineToChange, newApiQuestion)),
+      // Quiz is not complete anymore
+      tap(() =>  this.isQuizComplete$.next(false)),
+      // Retry until a new question is found
+      retry(),
+    );
+  }
+  
   /**
    * Navigate to the quiz results page
    */
@@ -322,7 +367,6 @@ export class QuizMakerService {
    */
   private updateQuizState(quizAnswer: QuizAnswerModel): void {
     this.quizLines$.next(
-      // Copy for immutability
       [...this.quizLines$.value].map(quizLine => {
         if(quizLine.question === quizAnswer.question) {
           quizLine.userAnswer = quizAnswer.answer;
@@ -345,7 +389,91 @@ export class QuizMakerService {
    * Reset the quiz
    */
   private resetQuiz(): void {
+    // Empty quiz lines
     this.quizLines$.next([]);
+
+    // Quiz is not complete anymore
     this.isQuizComplete$.next(false);
+
+    // Quiz config is reset
+    this.quizConfig$.next(null);
+
+    // No category is selected
+    this.selectedQuizCategory$.next(null);
+
+    // Bonus question can be used again
+    this.canQuestionBeChanged$.next(true);
   }
+
+  /**
+   * Get a quiz category from the config passed as parameter
+   * @param quizConfig he quiz config
+   * @returns the quiz category
+   */
+  private getQuizCategory(quizConfig: QuizConfigModel | null): QuizCategoryModel {
+    // If no config or no categories, return null
+    if(!quizConfig || !this.quizCategories$.value) {
+      throw new Error('No quiz config or quiz categories defined');
+    }
+
+    // Get quiz category
+    const quizCategory = this.quizCategories$.value.find(
+      category => category.name === quizConfig.category
+    );
+
+    // If category doesn't exist, throw an error
+    if(!quizCategory) {
+      throw new Error(`Quiz category ${quizCategory} doesn't exist`);
+    }
+
+    return quizCategory;
+  }
+
+  /**
+   * Select a new api question (different from those of the actual quiz)
+   * @param apiQuestions the api questions potentially containing the new question
+   * @returns the new api question
+   */
+  private selectNewApiQuestion(apiQuestions: ApiQuestionModel[]): Observable<ApiQuestionModel> {
+    // Get actual questions
+    const actualQuestions = this.quizLines$.value.map(
+      quizLine => quizLine.question
+    );
+      
+    // Get only questions different from the actual ones
+    const newApiQuestions = apiQuestions.filter(
+      apiQuestion => !actualQuestions.includes(apiQuestion.question)
+    );
+
+    // If no new question, throw an error (launch retry)
+    if(newApiQuestions.length === 0) {
+      return throwError(() => 'No new question found');
+    }
+
+    // Else take first new api question
+    return of(newApiQuestions[0]);
+  }
+
+  /**
+   * Replace a line in the actual quiz lines
+   * @param quizLineToChange le line to change
+   * @param newApiQuestion the new question
+   */
+  private replaceQuizLine(quizLineToChange: QuizLineModel, newApiQuestion: ApiQuestionModel) {
+    // Create new quiz line
+    // Note: must look for a question until it's a different one from the others
+    const newQuizLine = this.createQuizLineFromApiQuestion(newApiQuestion);
+
+    // Copy actual quiz lines and replace quiz line to change
+    const newQuizLines = [...this.quizLines$.value].map(quizLine => 
+      (quizLine.question === quizLineToChange.question) ? newQuizLine : quizLine
+    );
+
+    // Update quiz lines
+    this.quizLines$.next(newQuizLines)
+
+    // Question can not be changed twice
+    this.canQuestionBeChanged$.next(false);
+  }
+
 }

@@ -24,7 +24,9 @@
   <qzm-quiz-lines
     [areQuizLinesLoading]="areQuizLinesLoading$ | async"
     [quizLines]="quizLines$ | async"
-    (pickAnswer)="pickAnswer($event)">
+    [canQuestionBeChanged]="canQuestionBeChanged$ | async"
+    (pickAnswer)="pickAnswer($event)"
+    (changeQuizLine)="changeQuizLine($event)">
   </qzm-quiz-lines>
 
   <!-- Submit -->

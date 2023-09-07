@@ -33,18 +33,6 @@ export class DropdownComponent implements OnInit, OnDestroy, ControlValueAccesso
   @Input()
   disabled = false;
 
-  @Input()
-  pending = false;
-
-  @Input()
-  pendingMessage = 'Checking...';
-
-  @Input()
-  error = false;
-
-  @Input()
-  errorMessage = 'Error';
-
   @HostListener('mouseover')
   onMouseover() {
     if(!this.areOptionsVisible) {

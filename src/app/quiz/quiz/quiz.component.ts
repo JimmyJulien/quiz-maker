@@ -37,22 +37,25 @@ export class QuizComponent implements OnDestroy {
   /** Quiz complete indicator from the quiz service */
   isQuizComplete$: Observable<boolean> = this.quizMakerService.isQuizComplete();
   
+  /** Indicates if a question can be changed */
+  canQuestionBeChanged$ = this.quizMakerService.canQuestionBeChanged();
+
   /** Subscription used to unsubscribe when the component is destroyed */
-  souscription = new Subscription();
+  subscription = new Subscription();
 
   constructor(private readonly quizMakerService: QuizMakerService) {}
 
   ngOnInit(): void {
-    this.souscription.add(
+    this.subscription.add(
       this.quizMakerService.initializeQuizCategories().subscribe()
     );
   }
 
   /**
-   * Unsubscribe souscription
+   * Unsubscribe subscription
    */
   ngOnDestroy(): void {
-    this.souscription.unsubscribe();
+    this.subscription.unsubscribe();
   }
 
   /**
@@ -75,7 +78,7 @@ export class QuizComponent implements OnDestroy {
    * @param quizConfig the quiz configuration
    */
   createQuizLines(quizConfig: QuizConfigModel): void {
-    this.souscription.add(
+    this.subscription.add(
       this.quizMakerService.createQuizLines(quizConfig).subscribe()
     );
   }
@@ -86,6 +89,16 @@ export class QuizComponent implements OnDestroy {
    */
   pickAnswer(quizAnswer: QuizAnswerModel): void {
     this.quizMakerService.pickAnswer(quizAnswer);
+  }
+
+  /**
+   * Change  the quiz line passed as a parameter
+   * @param quizLine the quiz line to change
+   */  
+  changeQuizLine(quizLine: QuizLineModel): void {
+    this.subscription.add(
+      this.quizMakerService.changeQuizLine(quizLine).subscribe()
+    );
   }
 
   /**

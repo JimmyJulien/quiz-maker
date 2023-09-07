@@ -31,6 +31,12 @@
         background-color: green;
         color: white;
       }
+
+      &.change-question {
+        background-color: black;
+        border-color: black;
+        color: white;
+      }
     }
   }
 }

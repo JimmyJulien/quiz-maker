@@ -61,32 +61,30 @@ export class QuizFormComponent implements OnInit, OnDestroy {
     // Handle first call before ngOnOnInit (form not yet initialized)
     if(!this.form) return;
 
-    // Update category validators
+    // Update category validators (here because not an async validator)
     const quizCategories = changes['quizCategories'];
+    
     if(quizCategories?.currentValue?.length) {
       this.categoryControl.addValidators(
         existingValidator(quizCategories.currentValue)
       );
     }
 
-    // Update subcategories validators
+    // Update subcategory control
     const quizSubcategories = changes['quizSubcategories'];
 
     if(quizSubcategories?.currentValue?.length) {
-      this.subcategoryControl.addValidators([
-        Validators.required,
-        existingValidator(quizSubcategories.currentValue)
-      ]);
+      this.form.addControl(
+        this.SUBCATEGORY_FIELD,
+        new FormControl(null, [Validators.required, existingValidator(quizSubcategories.currentValue)])
+      );
     }
     else {
-      this.subcategoryControl.removeValidators([
-        Validators.required,
-        existingValidator(quizSubcategories.currentValue)
-      ]);
+      this.form.removeControl(this.SUBCATEGORY_FIELD);
     }
 
     // Update form validity
-    this.form.updateValueAndValidity();
+    // this.form.updateValueAndValidity();
   }
   
   ngOnInit(): void {
@@ -103,8 +101,8 @@ export class QuizFormComponent implements OnInit, OnDestroy {
   private initializeForm(): void {
     // Initialize form
     this.form = new FormGroup({
-      [this.CATEGORY_FIELD]: new FormControl(null, Validators.required),
-      [this.SUBCATEGORY_FIELD]: new FormControl(null),
+      [this.CATEGORY_FIELD]: new FormControl(null, [Validators.required, ]),
+      // [this.SUBCATEGORY_FIELD]: new FormControl(null),
       [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required)
     });
 
@@ -116,8 +114,8 @@ export class QuizFormComponent implements OnInit, OnDestroy {
           // Emit selected category
           this.selectCategory.emit(category);
 
-          // Reset subcategory
-          this.subcategoryControl.setValue(null);
+          // Reset subcategory (if existing)
+          this.subcategoryControl?.reset();
         })
       )
       .subscribe()
