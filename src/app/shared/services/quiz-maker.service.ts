@@ -291,7 +291,6 @@ export class QuizMakerService {
     // Get new lines
     return this.apiQuestionRepositoryService.getQuestions(quizCategory.id, configDifficulty)
     .pipe(
-      tap(console.log),
       // Select new API questions
       mergeMap(apiQuestions => this.selectNewApiQuestion(apiQuestions)),
       // Replace quiz line
