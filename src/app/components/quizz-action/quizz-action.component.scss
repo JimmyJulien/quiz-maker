@@ -14,5 +14,9 @@ button {
     font-size: 1.3rem;
     font-weight: 900;
     background-color: colors.$green;
+
+    &:hover {
+      background-color: colors.$pink;
+    }
   }
 }

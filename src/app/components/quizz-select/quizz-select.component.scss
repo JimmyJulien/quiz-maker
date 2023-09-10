@@ -17,8 +17,9 @@ $common-width: 16rem;
   background-color: colors.$white;
 
   .option {
-    width: calc($common-width - 0.5rem);
-    padding: 0.5rem;
+    $option-padding: 0.5rem;
+    width: calc($common-width - $option-padding);
+    padding: $option-padding;
     min-width: $common-width;
 
     &:hover {
