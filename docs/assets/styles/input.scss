@@ -1,0 +1,13 @@
+// Input custom theme
+@mixin theme() {
+  input {
+    border: solid 3px;
+    min-height: 1.5rem;
+    padding: 0.5rem;
+    font-size: 1.1rem;
+  
+    &:hover {
+      cursor: text;
+    }
+  }
+}

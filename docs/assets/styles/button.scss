@@ -1,0 +1,40 @@
+@use 'colors';
+
+// Button custom theme
+@mixin theme() {
+  button {
+    border: solid 3px;
+    box-shadow: 2px 2px;
+    min-height: 2rem;
+    max-height: 4rem;
+    font-size: 1.1rem;
+    font-weight: 900;
+    font-family: DarkerGrotesque;
+    text-transform: uppercase;
+    
+    &:disabled {
+      background-color: colors.$grey;
+      cursor: default;
+    }
+
+    &:not(:disabled) {
+      cursor: pointer;
+
+      &.purple {
+        background-color: colors.$purple;
+      }
+      
+      &.green {
+        background-color: colors.$green;
+      }
+      
+      &.blue {
+        background-color: colors.$blue;
+      }
+
+      &:hover {
+        background-color: colors.$pink;
+      }
+    }
+  }
+}
