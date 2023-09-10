@@ -1,8 +1,33 @@
-html, body, select, input, button {
-  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+@use 'html';
+@use 'body';
+@use 'input';
+@use 'button';
 
-  input {
-    height: 1.75rem;
-    font-size: 1.1rem;
-  }
+// Darker Grotesque font
+@font-face {
+  font-family: DarkerGrotesque;
+  src: url(assets/fonts/DarkerGrotesque-VariableFont_wght.ttf) format('truetype')
 }
+
+// Lexend font
+@font-face {
+  font-family: Lexend;
+  src: url(assets/fonts/Lexend-VariableFont_wght.ttf) format('truetype')
+}
+
+// Apply Lexend font family by default
+* {
+  font-family: Lexend;
+}
+
+// Add html custom theme
+@include html.theme();
+
+// Add body custom theme
+@include body.theme();
+
+// Add input custom theme
+@include input.theme();
+
+// Add button custom theme
+@include button.theme();

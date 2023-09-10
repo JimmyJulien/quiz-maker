@@ -1,0 +1,27 @@
+<input
+  class="input"
+  [ngClass]="{disabled}"
+  [placeholder]="placeholder"
+  [formControl]="control"
+  [tabIndex]="disabled ? -1 : 0"
+  readonly
+  (focus)="onInputFocus()"
+  (keydown.Shift.Tab)="onInputBlur()"
+>
+
+<div
+  *ngIf="options?.length && areOptionsVisible"
+  class="options-container"
+  [ngClass]="{disabled}"
+>
+  <div
+    *ngFor="let option of options; last as isLastOption"
+    class="option"
+    tabindex="0"
+    (click)="onOptionClick(option)"
+    (keydown.Enter)="onOptionClick(option)"
+    (keydown.Tab)="onOptionsTabKeydown(isLastOption)"
+  >
+    {{ optionFormatFn(option) }}
+  </div>
+</div>

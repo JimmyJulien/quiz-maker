@@ -1,0 +1,6 @@
+@use 'layout';
+
+:host {
+  @include layout.flex(column, center, center, 1rem);
+  padding: 1rem;
+}

@@ -1,0 +1,1 @@
+export type QuizzAction = 'submit' | 'create';

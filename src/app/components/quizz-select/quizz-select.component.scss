@@ -1,0 +1,33 @@
+@use 'layout';
+@use 'colors';
+
+$common-width: 16rem;
+
+.input {
+  min-width: $common-width;
+}
+
+.options-container {
+  position: absolute;
+  z-index: 2;
+  @include layout.flex($direction: column);
+  border: dashed 3px;
+  border-top: none;
+  min-width: $common-width;
+  background-color: colors.$white;
+
+  .option {
+    width: calc($common-width - 0.5rem);
+    padding: 0.5rem;
+    min-width: $common-width;
+
+    &:hover {
+      cursor: pointer;
+      background-color: colors.$purple;
+    }
+  }
+}
+
+.disabled {
+  pointer-events: none;
+}

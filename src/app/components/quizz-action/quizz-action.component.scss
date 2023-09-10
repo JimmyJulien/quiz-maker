@@ -1,0 +1,18 @@
+@use 'layout';
+@use 'colors';
+
+:host {
+  @include layout.flex($j-content: center, $a-items: center);
+  width: 100%;
+}
+
+button {
+  &.submit-button,
+  &.create-button {
+    min-height: 4rem;
+    width: 25%;
+    font-size: 1.3rem;
+    font-weight: 900;
+    background-color: colors.$green;
+  }
+}
