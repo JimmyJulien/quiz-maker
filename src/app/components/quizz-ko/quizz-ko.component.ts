@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 
 @Component({
   selector: 'qzm-quizz-ko',
@@ -10,13 +10,6 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angul
 export class QuizzKoComponent {
 
   /** Reload event emitter to the parent */
-  @Output() reload = new EventEmitter<void>();
-
-  /**
-   * Reload click event handler
-   */
-  onReloadClick() {
-    this.reload.emit();
-  }
+  reload = output<void>();
 
 }
