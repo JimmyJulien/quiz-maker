@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, SimpleChanges, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription, tap } from 'rxjs';
 import { QuizzConfigModel } from 'src/app/models/quizz-config.model';
@@ -7,6 +7,7 @@ import { existingValidator } from '../../validators/existing.validator';
 import { QuizzInputComponent } from '../quizz-input/quizz-input.component';
 import { QuizzSelectComponent } from '../quizz-select/quizz-select.component';
 
+// TODO update form
 @Component({
   selector: 'qzm-quizz-form',
   templateUrl: './quizz-form.component.html',
@@ -26,22 +27,22 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
   readonly DIFFICULTY_FIELD = 'difficulty';
 
   /** Quizz categories loading indicator from the parent */
-  @Input() areQuizzCategoriesLoading: boolean | null = false;
+  areQuizzCategoriesLoading = input<boolean | null>(false);
 
   /** Quizz categories from the parent */
-  @Input() quizCategories: string[] | null = [];
+  quizCategories = input<string[] | null>([]);
   
   /** Quizz subcategories from the parent */
-  @Input() quizSubcategories: string[] | null = [];
+  quizSubcategories = input<string[] | null>([]);
 
   /** Quizz difficulties from the parent */
-  @Input() quizDifficulties: QuizzDifficultyModel[] | null = [];
+  quizDifficulties = input<QuizzDifficultyModel[] | null>([]);
 
   /** Select a category */
-  @Output() selectCategory = new EventEmitter<string | null>();
+  selectCategory = output<string | null>();
 
   /** Create quizz event emitter to the parent*/
-  @Output() createQuizz = new EventEmitter<QuizzConfigModel>();
+  createQuizz = output<QuizzConfigModel>();
 
   /** Quizz form */
   form!: FormGroup;
@@ -62,7 +63,7 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
   }
 
   /** Quizz difficulty formatting function used by quizz-select */
-  formatQuizzDifficultyFn = (value: QuizzDifficultyModel | null) => value ? value.label : null;
+  formatQuizzDifficultyFn = (value: QuizzDifficultyModel | null) => value?.label || null;
   
   /** Main subscription used to handle unsubscription on component destruction */
   subscription = new Subscription();
@@ -108,11 +109,11 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
   private initializeForm(): void {
     // Initialize form
     this.form = new FormGroup({
-      [this.CATEGORY_FIELD]: new FormControl(null, [Validators.required, ]),
+      [this.CATEGORY_FIELD]: new FormControl(null, Validators.required),
       [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required)
     });
 
-    // Update category and subcategory when catagory change
+    // Update category and subcategory when category change
     this.subscription.add(
       this.categoryControl.valueChanges
       .pipe(
@@ -136,6 +137,6 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
       category: this.categoryControl.value,
       subcategory: this.subcategoryControl?.value,
       difficulty: this.difficultyControl.value.value
-    } as QuizzConfigModel);
+    });
   }
 }
