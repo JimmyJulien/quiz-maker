@@ -4,7 +4,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/quizz/quizz.component').then(c => c.QuizzComponent),
+    loadComponent: () => import('./components/quiz/quiz.component').then(c => c.QuizComponent),
     pathMatch: 'full',
   },
   {

@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { QuizzLineModel } from 'src/app/models/quizz-line.model';
+import { QuizLineModel } from 'src/app/models/quiz-line.model';
 
-/** Pipe used to transform an answer and a quizz line into a color class */
+/** Pipe used to transform an answer and a quiz line into a color class */
 @Pipe({
   name: 'qzmAnswerColor',
   pure: false,
@@ -10,14 +10,14 @@ import { QuizzLineModel } from 'src/app/models/quizz-line.model';
 export class AnswerColorPipe implements PipeTransform {
 
   /**
-   * Transform an answer and a quizz line into a color class
+   * Transform an answer and a quiz line into a color class
    * @param answer the answer
-   * @param quizLine the quizz line
+   * @param quizLine the quiz line
    * @returns the answer color class
    */
   transform(
     answer: string,
-    quizLine: QuizzLineModel,
+    quizLine: QuizLineModel,
     disabled: boolean | null,
   ): 'picked' | 'correct' | 'incorrect' | '' {
 

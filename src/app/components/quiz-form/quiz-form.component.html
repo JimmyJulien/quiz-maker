@@ -1,0 +1,47 @@
+@if (areQuizCategoriesLoading() || areQuizDifficultiesLoading()) {
+  <!-- Quiz Maker loading -->
+  <div class="loading">Quiz Maker is loading...</div>
+}
+@else {
+  @if (quizCategories().length && quizDifficulties().length) {
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Category dropdown -->
+      <div class="form-field">
+        <div class="form-field-label">Category</div>
+        <qzm-quiz-input
+          [formControlName]="CATEGORY_FIELD"
+          [options]="quizCategories()"
+          placeholder="Enter a category"
+        />
+      </div>
+
+      <!-- Subcategory dropdown -->
+      @if (quizSubcategories().length) {
+        <div class="form-field">
+          <div class="form-field-label">Subcategory</div>
+          <qzm-quiz-input
+            [formControlName]="SUBCATEGORY_FIELD"
+            [options]="quizSubcategories()"
+            placeholder="Enter a subcategory"
+          />
+        </div>
+      }
+
+      <!-- Difficulty dropdown -->
+      <div class="form-field">
+        <div class="form-field-label">Difficulty</div>
+        <qzm-quiz-select
+          [formControlName]="DIFFICULTY_FIELD"
+          [options]="quizDifficulties()"
+          placeholder="Select a difficulty"
+          [optionFormatFn]="formatQuizDifficultyFn"
+        />
+      </div>
+      <!-- Create button -->
+      <button class="create-button" type="submit" [disabled]="form.invalid">
+        Create
+      </button>
+    </form>
+  }
+}

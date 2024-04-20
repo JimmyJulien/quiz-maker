@@ -1,0 +1,23 @@
+@use 'layout';
+@use 'colors';
+
+.quiz-score {
+  @include layout.flex($j-content: center, $a-items: center);
+  margin: 1rem 0;
+  border: dotted 4px;
+  padding: 2rem 4rem;
+  font-size: 2rem;
+  font-weight: 900;
+
+  &.correct {
+    background-color: colors.$green;
+  }
+
+  &.neutral {
+    background-color: colors.$blue;
+  }
+
+  &.incorrect {
+    background-color: colors.$red;
+  }
+}

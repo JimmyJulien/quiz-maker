@@ -1,8 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { QuizzLineModel } from 'src/app/models/quizz-line.model';
-import { QuizzMakerUtils } from '../utils/quizz-maker.utils';
+import { QuizLineModel } from 'src/app/models/quiz-line.model';
+import { QuizMakerUtils } from '../utils/quiz-maker.utils';
 
-/** Pipe used to transform quizz lines into a formatted score */
+/** Pipe used to transform quiz lines into a formatted score */
 @Pipe({
   name: 'qzmScoreFormat',
   standalone: true,
@@ -10,13 +10,13 @@ import { QuizzMakerUtils } from '../utils/quizz-maker.utils';
 export class ScoreFormatPipe implements PipeTransform {
 
   /**
-   * Transform quizz lines into a formatted score
-   * @param quizLines the quizz lines
+   * Transform quiz lines into a formatted score
+   * @param quizLines the quiz lines
    * @returns the formatted score
    */
-  transform(quizLines: QuizzLineModel[] | null): string {
+  transform(quizLines: QuizLineModel[] | null): string {
     if(!quizLines) return '';// TODO JJN
-    return `You scored ${QuizzMakerUtils.getCorrectAnswersNumberFromQuizzLines(quizLines)} out of ${quizLines.length}`;
+    return `You scored ${QuizMakerUtils.getCorrectAnswersNumberFromQuizLines(quizLines)} out of ${quizLines.length}`;
   }
 
 }

@@ -1,0 +1,50 @@
+@use 'layout';
+@use 'colors';
+
+:host {
+  @include layout.flex($direction: column);
+}
+
+.loading {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.quiz-line {
+  @include layout.flex($direction: column, $j-content: center, $gap: 0.5rem);
+  margin: 1rem;
+
+  &.disabled {
+    pointer-events: none;
+  }
+
+  .quiz-question {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .quiz-answers {
+    @include layout.flex($gap: 1rem);
+
+    button {
+      &.quiz-button {
+        min-height: 4rem;
+        width: 25%;
+        background-color: colors.$purple;
+  
+        &.correct {
+          background-color: colors.$green;
+        }
+  
+        &.incorrect {
+          background-color: colors.$red;
+        }
+
+        &:hover,
+        &.picked {
+          background-color: colors.$pink;
+        }
+      }
+    }
+  }
+}
