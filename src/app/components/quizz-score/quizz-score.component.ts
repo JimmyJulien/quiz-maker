@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { QuizzLineModel } from 'src/app/models/quizz-line.model';
 import { ScoreColorPipe } from 'src/app/pipes/score-color.pipe';
 import { ScoreFormatPipe } from 'src/app/pipes/score-format.pipe';
@@ -18,5 +18,5 @@ import { ScoreFormatPipe } from 'src/app/pipes/score-format.pipe';
 })
 export class QuizzScoreComponent {
   /** Quizz lines from the parent */
-  @Input() quizLines: QuizzLineModel[] | null = [];
+  quizLines = input<QuizzLineModel[] | null>([]);
 }

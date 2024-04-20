@@ -1,5 +1,5 @@
-@if (quizLines?.length) {
-  <div class="quizz-score" [ngClass]="quizLines | qzmScoreColor">
-    {{ quizLines | qzmScoreFormat }}
+@if (quizLines()?.length) {
+  <div class="quizz-score" [ngClass]="quizLines() | qzmScoreColor">
+    {{ quizLines() | qzmScoreFormat }}
   </div>
 }
