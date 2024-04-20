@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Pipe({
@@ -7,7 +7,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class BoldFilterPipe implements PipeTransform {
 
-  constructor(private readonly sanitizer: DomSanitizer) {}
+  readonly #sanitizer = inject(DomSanitizer);
 
   transform(value: string, filter: string | null) {
     // If no value, return empty string
@@ -24,7 +24,7 @@ export class BoldFilterPipe implements PipeTransform {
     const valueAfterFilter = value.substring(indexAfter, value.length);
 
     // Note: <b> not visible enough so use of span with bigger font-size + bold
-    return this.sanitizer.bypassSecurityTrustHtml(
+    return this.#sanitizer.bypassSecurityTrustHtml(
       `${valueBeforeFilter}<span style="font-size:1.1rem;font-weight:bolder;">${valueFilter}</span>${valueAfterFilter}`
     );
   }

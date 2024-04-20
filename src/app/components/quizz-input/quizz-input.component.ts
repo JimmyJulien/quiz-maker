@@ -4,6 +4,7 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModu
 import { Subscription, tap } from 'rxjs';
 import { BoldFilterPipe } from 'src/app/pipes/bold-filter.pipe';
 
+// Accept any type (not just string)
 @Component({
   selector: 'qzm-quizz-input',
   templateUrl: './quizz-input.component.html',

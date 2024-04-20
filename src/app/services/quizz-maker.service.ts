@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, Observable, catchError, combineLatest, finalize, map, mergeMap, of, retry, tap, throwError } from 'rxjs';
+import { EMPTY, Observable, catchError, finalize, mergeMap, of, retry, tap, throwError } from 'rxjs';
 import { ApiQuestionModel } from 'src/app/models/api-question.model';
 import { QuizzAnswerModel } from '../models/quizz-answer.model';
 import { QuizzCategoryModel } from '../models/quizz-category.model';
@@ -19,82 +19,75 @@ import { QuizzQuestionService } from './quizz-question.service';
 })
 export class QuizzMakerService {
 
-  /** Quizz categories loading indicator */
-  private areQuizzCategoriesLoading$ = new BehaviorSubject<boolean>(false);
-
-  /** Quizz lines loading indicator */
-  private areQuizzLinesLoading$ = new BehaviorSubject<boolean>(false);
-
-  /** Quizz maker KO indicator */
-  private isQuizzMakerKo$ = new BehaviorSubject<boolean>(false);
-
-  /** Quizz categories */
-  private quizCategories$ = new BehaviorSubject<QuizzCategoryModel[] | null>(null);
-
-  /** Selected quizz category */
-  private selectedQuizzCategory$ = new BehaviorSubject<string | null>(null);
+  readonly #categoryService = inject(QuizzCategoryService);
+  readonly #questionService = inject(QuizzQuestionService);
+  readonly #difficultyService = inject(QuizzDifficultyService);
+  readonly #router = inject(Router);
 
   /** Quizz lines */
-  private quizLines$ = new BehaviorSubject<QuizzLineModel[]>([]);
+  #quizzLines = signal<QuizzLineModel[]>([]);
+  quizzLines = computed(() => this.#quizzLines());
+
+  /** Quizz lines loading indicator */
+  #areQuizzLinesLoading = signal<boolean>(false);
+  areQuizzLinesLoading = computed(() => this.#areQuizzLinesLoading());
+
+  /** Quizz maker KO indicator */
+  #isQuizzMakerKo = signal<boolean>(false);
+  isQuizzMakerKo = computed(() => this.#isQuizzMakerKo());
+
+  /** Quizz categories */
+  #quizzCategories = signal<QuizzCategoryModel[]>([]);
+  quizzCategories = computed(() => this.#quizzCategories());
+
+  /** Quizz categories loading indicator */
+  #areQuizzCategoriesLoading = signal<boolean>(false);
+  areQuizzCategoriesLoading = computed(() => this.#areQuizzCategoriesLoading());
+
+  /** Selected quizz category */
+  #selectedQuizzCategory = signal<string | null>(null);
+  selectedQuizzCategory$ = computed(() => this.#selectedQuizzCategory());
+
+  /** Quizz subcategories */
+  #quizzSubcategories = computed(() => {
+    const categories = this.quizzCategories();
+    const selectedCategory = this.selectedQuizzCategory$();
+
+    // If no category, no subcategory
+    if(categories.length === 0) return [];
+
+    // Else filter on selected category and get only distinct subcategory name
+    const nonDistinctSubcategories = categories
+      .filter(category => category.subcategory && category.name === selectedCategory)
+      .map(category => category.subcategory!);
+
+    // Return distinct subcategories
+    return [...new Set(nonDistinctSubcategories)];
+  });
+  quizzSubcategories = computed(() => this.#quizzSubcategories());
+
+  /** Quizz difficulties */
+  #quizzDifficulties = signal<QuizzDifficultyModel[]>([]);
+  quizzDifficulties = computed(() => this.#quizzDifficulties());
+
+  /** Quizz difficulties loading indicator */
+  #areQuizzDifficultiesLoading = signal<boolean>(false);
+  areQuizzDifficultiesLoading = computed(() => this.#areQuizzDifficultiesLoading());
 
   /** Complete quizz indicator */
-  private isQuizzComplete$ = new BehaviorSubject<boolean>(false);
+  #isQuizzComplete = signal<boolean>(false);
+  isQuizzComplete = computed(() => this.#isQuizzComplete());
 
   /** Quizz config used to create the last quizz */
-  private actualQuizzConfig$ = new BehaviorSubject<QuizzConfigModel | null>(null)
+  #actualQuizzConfig = signal<QuizzConfigModel | null>(null)
 
   /** Indicates if a question can be changed */
-  private canQuestionBeChanged$ = new BehaviorSubject<boolean>(true);
+  #canQuestionBeChanged = signal<boolean>(true);
+  canQuestionBeChanged = computed(() => this.#canQuestionBeChanged());
 
   /** Indicates if results are shown */
-  private areResultsShown$ = new BehaviorSubject<boolean>(false);
-
-  constructor(
-    private readonly categoryService: QuizzCategoryService,
-    private readonly questionService: QuizzQuestionService,
-    private readonly difficultyService: QuizzDifficultyService,
-    private readonly router: Router,
-  ) {}
-
-  /**
-   * Get the quizz categories loading indicator as an Observable
-   * @returns the quizz categories loading indicator as an Observable
-   */
-  areQuizzCategoriesLoading(): Observable<boolean> {
-    return this.areQuizzCategoriesLoading$.asObservable();
-  }
-
-  /**
-   * Get the quizz lines loading indicator as an Observable
-   * @returns the quizz lines loading indicator as an Observable
-   */
-  areQuizzLinesLoading(): Observable<boolean> {
-    return this.areQuizzLinesLoading$.asObservable();
-  }
-
-  /**
-   * Get the quizz maker ko indicator as an Observable
-   * @returns the quizz maker ko indicator as an Observable
-   */
-  isQuizzMakerKo(): Observable<boolean> {
-    return this.isQuizzMakerKo$.asObservable();
-  }
-
-  /**
-   * Check if the user can change a question
-   * @returns true if question hasn't already been changed, false else
-   */
-  canQuestionBeChanged(): Observable<boolean> {
-    return this.canQuestionBeChanged$.asObservable();
-  }
-
-  /**
-   * Indicate if results are actually shown
-   * @returns true if results are shown
-   */
-  areResultsShown(): Observable<boolean> {
-    return this.areResultsShown$.asObservable();
-  }
+  #areResultsShown = signal<boolean>(false);
+  areResultsShown = computed(() => this.#areResultsShown());
 
   /**
    * Initialize the quizz categories
@@ -102,80 +95,48 @@ export class QuizzMakerService {
    */
   initializeQuizzCategories(): Observable<QuizzCategoryModel[]> {
     // Start categories loading
-    this.areQuizzCategoriesLoading$.next(true);
+    this.#areQuizzCategoriesLoading.set(true);
 
-    return this.categoryService.getQuizzCategories()
+    return this.#categoryService.getQuizzCategories()
     .pipe(
       // Initialize quizz categories
-      tap(categories => this.quizCategories$.next(categories)),
+      tap(categories => {
+        this.#quizzCategories.set(categories);
+      }),
       // Handle error while retrieving categories
       catchError((error: HttpErrorResponse) => 
         this.handleQuizzError('Error retrieving categories', error)
       ),
       // Stop categories loading even if an error occurs
-      finalize(() => this.areQuizzCategoriesLoading$.next(false))
-    );
-  }
-
-  /**
-   * Get quizz categories
-   * @returns quizz categories
-   */
-  getQuizzCategories(): Observable<string[] | null> {
-    return this.quizCategories$.asObservable()
-      .pipe(
-        map(categories => categories?.map(category => category.name)),
-        map(categories => [...new Set(categories)])
-      );
-  }
-
-  /**
-   * Get quizz subcategories
-   * @returns quizz subcategories
-   */
-  getQuizzSubcategories(): Observable<string[] | null> {
-    return combineLatest([
-      this.quizCategories$,
-      this.selectedQuizzCategory$,
-    ])
-    .pipe(
-      map(([categories, selectedCategory]) => {
-        // If no category, no subcategory
-        if(!categories) return null;
-
-        // Else filter on selected category and get only distinct subcategory name
-        const nonDistinctSubcategories = categories
-          .filter(category => category.subcategory && category.name === selectedCategory)
-          .map(category => category.subcategory!);
-
-        // Return distinct subcategories
-        return [...new Set(nonDistinctSubcategories)];
+      finalize(() => {
+        this.#areQuizzCategoriesLoading.set(false);
       })
     );
   }
 
   /**
-   * Get quizz difficulties
+   * Initialize the quizz difficulties
    * @returns the quizz difficulties
    */
-  getQuizzDifficulties(): Observable<QuizzDifficultyModel[]> {
-    return this.difficultyService.getQuizzDifficulties();
-  }
+  initializeQuizzDifficulties(): Observable<QuizzDifficultyModel[]> {
+    // Start difficulties loading
+    this.#areQuizzDifficultiesLoading.set(true);
 
-  /**
-   * Get the quizz lines
-   * @returns the quizz lines
-   */
-  getQuizzLines(): Observable<QuizzLineModel[]> {
-    return this.quizLines$.asObservable();
-  }
-
-  /**
-   * Get the quizz complete indicator as an Observable
-   * @returns the quizz complete indicator as an Observable
-   */
-  isQuizzComplete(): Observable<boolean> {
-    return this.isQuizzComplete$.asObservable();
+    return this.#difficultyService.getQuizzDifficulties()
+    .pipe(
+      // Initialize quizz difficulties
+      tap(difficulties => {
+        this.#quizzDifficulties.set(difficulties);
+      }),
+      // Handle error while retrieving difficulties
+      catchError((error: HttpErrorResponse) =>
+        this.handleQuizzError('Error retrieving difficulties', error)
+      ),
+      // Stop difficulties loading even if an error occurs
+      finalize(() => {
+        this.#areQuizzDifficultiesLoading.set(false);
+      })
+    )
   }
 
   /**
@@ -183,10 +144,10 @@ export class QuizzMakerService {
    */
   reloadQuizz(): void {
     // Reset quizz maker ko indicator
-    this.isQuizzMakerKo$.next(false);
+    this.#isQuizzMakerKo.set(false);
 
     // Redirect to quizz page
-    this.router.navigate(['']);
+    this.#router.navigate(['']);
   }
 
   /**
@@ -194,47 +155,45 @@ export class QuizzMakerService {
    * @param category the new selected category
    */
   selectCategory(category: string | null): void {
-    this.selectedQuizzCategory$.next(category);
+    this.#selectedQuizzCategory.set(category);
   }
 
   /**
    * Create quizz lines from a quizz configuration
-   * @param quizConfig the quizz configuration
+   * @param quizzConfig the quizz configuration
    * @returns the quizz lines
    */
-  createQuizzLines(quizConfig: QuizzConfigModel | null): Observable<ApiQuestionModel[]> {
+  createQuizzLines(quizzConfig: QuizzConfigModel | null): Observable<ApiQuestionModel[]> {
     // Start quizz lines loading
-    this.areQuizzLinesLoading$.next(true);
+    this.#areQuizzLinesLoading.set(true);
     
     // If no config, return empty quizz
-    if(!quizConfig) {
-      this.areQuizzLinesLoading$.next(false);
+    if(!quizzConfig) {
+      this.#areQuizzLinesLoading.set(false);
       return of([]);
     }
 
     // Get quizz category
-    const quizCategory = this.getQuizzCategory(quizConfig);
+    const quizzCategory = this.getQuizzCategory(quizzConfig);
 
-    // Save config in a subject (used for question change)
-    this.actualQuizzConfig$.next(quizConfig);
+    // Save config in a signal (used for question change)
+    this.#actualQuizzConfig.set(quizzConfig);
 
     // Get questions from category id and config difficulty
-    return this.questionService.getApiQuestions(quizCategory.id, quizConfig.difficulty!)
+    return this.#questionService.getApiQuestions(quizzCategory.id, quizzConfig.difficulty!)
       .pipe(
         tap(apiQuestions => {
-          this.quizLines$.next(
-            apiQuestions.map(
-              // Map into quizz line
-              apiQuestion => this.createQuizzLineFromApiQuestion(apiQuestion)
-            )
-          );
+          const quizzLines = apiQuestions.map(apiQuestion => this.createQuizzLineFromApiQuestion(apiQuestion));
+          this.#quizzLines.set(quizzLines);
         }),
         // Handle error while creating quizz lines
-        catchError((error: HttpErrorResponse) => 
-          this.handleQuizzError('Error creating quizz lines', error)
-        ),
+        catchError((error: HttpErrorResponse) => {
+          return this.handleQuizzError('Error creating quizz lines', error)
+        }),
         // Stop quizz lines loading even if an error occurs
-        finalize(() => this.areQuizzLinesLoading$.next(false))
+        finalize(() => {
+          this.#areQuizzLinesLoading.set(false);
+        })
       );
   }
 
@@ -254,9 +213,9 @@ export class QuizzMakerService {
    */
   changeQuizzLine(quizLineToChange: QuizzLineModel): Observable<ApiQuestionModel> {
     // Get last config category and difficulty
-    const configCategory = this.actualQuizzConfig$.value?.category;
-    const configDifficulty = this.actualQuizzConfig$.value?.difficulty;
-    const categories = this.quizCategories$.value;
+    const configCategory = this.#actualQuizzConfig()?.category;
+    const configDifficulty = this.#actualQuizzConfig()?.difficulty;
+    const categories = this.#quizzCategories();
 
     // If no category, no difficulty or no categories, stop stream
     if(!configCategory || !configDifficulty || !categories) {
@@ -264,17 +223,26 @@ export class QuizzMakerService {
     }
 
     // Get quizz category
-    const quizCategory = this.getQuizzCategory(this.actualQuizzConfig$.value);
+    const quizCategory = this.getQuizzCategory(this.#actualQuizzConfig());
 
     // Get new lines
-    return this.questionService.getApiQuestions(quizCategory.id, configDifficulty)
+    return this.#questionService.getApiQuestions(quizCategory.id, configDifficulty)
     .pipe(
       // Select new API questions
-      mergeMap(apiQuestions => this.selectNewApiQuestion(apiQuestions)),
-      // Replace quizz line
-      tap(newApiQuestion => this.replaceQuizzLine(quizLineToChange, newApiQuestion)),
+      mergeMap(apiQuestions => {
+        return this.selectNewApiQuestion(apiQuestions);
+      }),
+      tap(newApiQuestion => {
+        // Replace quizz line
+        this.replaceQuizzLine(quizLineToChange, newApiQuestion);
+
+        // Question can not be changed twice
+        this.#canQuestionBeChanged.set(false);
+      }),
       // Quizz is not complete anymore
-      tap(() =>  this.isQuizzComplete$.next(false)),
+      tap(() => {
+        this.#isQuizzComplete.set(false);
+      }),
       // Retry until a new question is found
       retry(),
     );
@@ -284,7 +252,7 @@ export class QuizzMakerService {
    * Show quizz results
    */
   showQuizzResults(): void {
-    this.areResultsShown$.next(true);
+    this.#areResultsShown.set(true);
   }
 
   /**
@@ -302,7 +270,7 @@ export class QuizzMakerService {
    */
   private handleQuizzError(explicitErrorMessage: string, error: HttpErrorResponse): Observable<never> {
     // Update quizz maker ko indicator
-    this.isQuizzMakerKo$.next(true);
+    this.#isQuizzMakerKo.set(true);
     
     // Log error in the browser console
     console.error(explicitErrorMessage, error);
@@ -330,23 +298,22 @@ export class QuizzMakerService {
    * @param quizAnswer the quizz answer
    */
   private updateQuizzState(quizAnswer: QuizzAnswerModel): void {
-    this.quizLines$.next(
-      [...this.quizLines$.value].map(quizLine => {
+    this.#quizzLines.update(value => {
+      return [...value].map(quizLine => {
         if(quizLine.question === quizAnswer.question) {
           quizLine.userAnswer = quizAnswer.answer;
         }
         return quizLine;
       })
-    );
+    });
   }
 
   /**
    * Update complete quizz indicator (a quizz is complete if the user answered all the questions)
    */
   private updateIsQuizzComplete(): void {
-    this.isQuizzComplete$.next(
-      this.quizLines$.value.every(quizLine => !!quizLine.userAnswer)
-    );
+    const everyLineHasAnAnswer = this.#quizzLines().every(quizLine =>!!quizLine.userAnswer);
+    this.#isQuizzComplete.set(everyLineHasAnAnswer);
   }
 
   /**
@@ -354,46 +321,55 @@ export class QuizzMakerService {
    */
   private resetQuizz(): void {
     // Empty quizz lines
-    this.quizLines$.next([]);
+    this.#quizzLines.set([]);
 
     // Quizz is not complete anymore
-    this.isQuizzComplete$.next(false);
+    this.#isQuizzComplete.set(false);
 
     // Quizz config is reset
-    this.actualQuizzConfig$.next(null);
+    this.#actualQuizzConfig.set(null);
 
     // No category is selected
-    this.selectedQuizzCategory$.next(null);
+    this.#selectedQuizzCategory.set(null);
 
     // Bonus question can be used again
-    this.canQuestionBeChanged$.next(true);
+    this.#canQuestionBeChanged.set(true);
 
     // Results are not shown anymore
-    this.areResultsShown$.next(false);
+    this.#areResultsShown.set(false);
   }
 
   /**
    * Get a quizz category from the config passed as parameter
-   * @param quizConfig he quizz config
+   * @param quizzConfig he quizz config
    * @returns the quizz category
    */
-  private getQuizzCategory(quizConfig: QuizzConfigModel | null): QuizzCategoryModel {
+  private getQuizzCategory(quizzConfig: QuizzConfigModel | null): QuizzCategoryModel {
+    const quizzCategories = this.#quizzCategories();
+    
     // If no config or no categories, return null
-    if(!quizConfig || !this.quizCategories$.value) {
+    if(!quizzConfig || quizzCategories.length === 0) {
       throw new Error('No quizz config or quizz categories defined');
     }
 
     // Get quizz category
-    const quizCategory = this.quizCategories$.value.find(
-      category => category.name === quizConfig.category
-    );
+    const quizzCategory = quizzCategories.find(category => {
+      const isSameCategory = category.name === quizzConfig.category;
+      
+      if(quizzConfig.subcategory) {
+        const isSameSubcategory = category.subcategory === quizzConfig.subcategory;
+        return isSameCategory && isSameSubcategory;
+      }
+
+      return isSameCategory;
+    });
 
     // If category doesn't exist, throw an error
-    if(!quizCategory) {
-      throw new Error(`Quizz category ${quizCategory} doesn't exist`);
+    if(!quizzCategory) {
+      throw new Error(`Quizz category ${quizzCategory} doesn't exist`);
     }
 
-    return quizCategory;
+    return quizzCategory;
   }
 
   /**
@@ -403,14 +379,10 @@ export class QuizzMakerService {
    */
   private selectNewApiQuestion(apiQuestions: ApiQuestionModel[]): Observable<ApiQuestionModel> {
     // Get actual questions
-    const actualQuestions = this.quizLines$.value.map(
-      quizLine => quizLine.question
-    );
+    const actualQuestions = this.#quizzLines().map(quizzLine => quizzLine.question);
       
     // Get only questions different from the actual ones
-    const newApiQuestions = apiQuestions.filter(
-      apiQuestion => !actualQuestions.includes(apiQuestion.question)
-    );
+    const newApiQuestions = apiQuestions.filter(apiQuestion => !actualQuestions.includes(apiQuestion.question));
 
     // If no new question, throw an error (launch retry)
     if(newApiQuestions.length === 0) {
@@ -423,24 +395,21 @@ export class QuizzMakerService {
 
   /**
    * Replace a line in the actual quizz lines
-   * @param quizLineToChange le line to change
+   * @param quizzLineToChange le line to change
    * @param newApiQuestion the new question
    */
-  private replaceQuizzLine(quizLineToChange: QuizzLineModel, newApiQuestion: ApiQuestionModel) {
+  private replaceQuizzLine(quizzLineToChange: QuizzLineModel, newApiQuestion: ApiQuestionModel) {
     // Create new quizz line
     // Note: must look for a question until it's a different one from the others
     const newQuizzLine = this.createQuizzLineFromApiQuestion(newApiQuestion);
 
     // Copy actual quizz lines and replace quizz line to change
-    const newQuizzLines = [...this.quizLines$.value].map(quizLine => 
-      (quizLine.question === quizLineToChange.question) ? newQuizzLine : quizLine
-    );
+    const newQuizzLines = [...this.#quizzLines()].map(quizzLine => {
+      return (quizzLine.question === quizzLineToChange.question) ? newQuizzLine : quizzLine;
+    });
 
     // Update quizz lines
-    this.quizLines$.next(newQuizzLines)
-
-    // Question can not be changed twice
-    this.canQuestionBeChanged$.next(false);
+    this.#quizzLines.set(newQuizzLines)
   }
 
 }

@@ -1,9 +1,7 @@
-import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject } from '@angular/core';
+import { Subscription, forkJoin } from 'rxjs';
 import { QuizzAnswerModel } from 'src/app/models/quizz-answer.model';
 import { QuizzConfigModel } from 'src/app/models/quizz-config.model';
-import { QuizzDifficultyModel } from 'src/app/models/quizz-difficulty.model';
 import { QuizzLineModel } from 'src/app/models/quizz-line.model';
 import { QuizzMakerService } from 'src/app/services/quizz-maker.service';
 import { QuizzAction } from 'src/app/types/quizz-action.type';
@@ -19,7 +17,6 @@ import { QuizzScoreComponent } from '../quizz-score/quizz-score.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    AsyncPipe,
     QuizzKoComponent,
     QuizzFormComponent,
     QuizzLinesComponent,
@@ -29,44 +26,55 @@ import { QuizzScoreComponent } from '../quizz-score/quizz-score.component';
 })
 export class QuizzComponent implements OnDestroy {
   
-  /** Quizz categories loading indicator from the quizz service */
-  areQuizzCategoriesLoading$ = this.quizzMakerService.areQuizzCategoriesLoading();
-
-  /** Quizz lines loading indicator from the quizz service */
-  areQuizzLinesLoading$ = this.quizzMakerService.areQuizzLinesLoading();
+  readonly #quizzMakerService = inject(QuizzMakerService);
 
   /** Quizz maker KO indicator from the quizz service */
-  isQuizzMakerKo$ = this.quizzMakerService.isQuizzMakerKo();
+  isQuizzMakerKo = this.#quizzMakerService.isQuizzMakerKo;
+
+  /** Indicates if quizz results are actually shown */
+  areResultsShown = this.#quizzMakerService.areResultsShown;
+
+  /** Quizz categories loading indicator from the quizz service */
+  areQuizzCategoriesLoading = this.#quizzMakerService.areQuizzCategoriesLoading;
 
   /** Quizz categories from the quizz service */
-  quizCategories$: Observable<string[] | null> = this.quizzMakerService.getQuizzCategories();
+  quizzCategories = computed(() => {
+    return [...new Set(
+      this.#quizzMakerService.quizzCategories().map(category => category.name)
+    )];
+  });
 
   /** Quizz subcategories */
-  quizSubcategories$: Observable<string[] | null> = this.quizzMakerService.getQuizzSubcategories();
+  quizzSubcategories = this.#quizzMakerService.quizzSubcategories;
+
+  /** Quizz difficulties loading indicator from the quizz service */
+  areQuizzDifficultiesLoading = this.#quizzMakerService.areQuizzDifficultiesLoading;
 
   /** Quizz difficulties from the quizz service */
-  quizDifficulties$: Observable<QuizzDifficultyModel[]> = this.quizzMakerService.getQuizzDifficulties();
+  quizzDifficulties = this.#quizzMakerService.quizzDifficulties;
+
+  /** Quizz lines loading indicator from the quizz service */
+  areQuizzLinesLoading = this.#quizzMakerService.areQuizzLinesLoading;
 
   /** Quizz lines from the quizz service */
-  quizLines$: Observable<QuizzLineModel[]> = this.quizzMakerService.getQuizzLines();
+  quizzLines = this.#quizzMakerService.quizzLines;
+
+  /** Indicates if a question can be changed */
+  canQuestionBeChanged = this.#quizzMakerService.canQuestionBeChanged;
 
   /** Quizz complete indicator from the quizz service */
-  isQuizzComplete$: Observable<boolean> = this.quizzMakerService.isQuizzComplete();
-  
-  /** Indicates if a question can be changed */
-  canQuestionBeChanged$ = this.quizzMakerService.canQuestionBeChanged();
+  isQuizzComplete = this.#quizzMakerService.isQuizzComplete;
 
   /** Subscription used to unsubscribe when the component is destroyed */
   subscription = new Subscription();
 
-  /** Indicates if quizz results are actually shown */
-  areResultsShown$ = this.quizzMakerService.areResultsShown();
-
-  constructor(private readonly quizzMakerService: QuizzMakerService) {}
-
   ngOnInit(): void {
     this.subscription.add(
-      this.quizzMakerService.initializeQuizzCategories().subscribe()
+      forkJoin([
+        this.#quizzMakerService.initializeQuizzCategories(),
+        this.#quizzMakerService.initializeQuizzDifficulties(),
+      ])
+      .subscribe()
     );
   }
 
@@ -81,7 +89,7 @@ export class QuizzComponent implements OnDestroy {
    * Reload quizz
    */
   onReload(): void {
-    this.quizzMakerService.reloadQuizz();
+    this.#quizzMakerService.reloadQuizz();
   }
 
   /**
@@ -89,34 +97,34 @@ export class QuizzComponent implements OnDestroy {
    * @param category the new selected category
    */
   selectCategory(category: string | null): void {
-    this.quizzMakerService.selectCategory(category);
+    this.#quizzMakerService.selectCategory(category);
   }
 
   /**
    * Create quizz lines from the quizz configuration passed in parameter
-   * @param quizConfig the quizz configuration
+   * @param quizzConfig the quizz configuration
    */
-  createQuizzLines(quizConfig: QuizzConfigModel): void {
+  createQuizzLines(quizzConfig: QuizzConfigModel): void {
     this.subscription.add(
-      this.quizzMakerService.createQuizzLines(quizConfig).subscribe()
+      this.#quizzMakerService.createQuizzLines(quizzConfig).subscribe()
     );
   }
 
   /**
    * Pick an answer
-   * @param quizAnswer the answer picked
+   * @param quizzAnswer the answer picked
    */
-  pickAnswer(quizAnswer: QuizzAnswerModel): void {
-    this.quizzMakerService.pickAnswer(quizAnswer);
+  pickAnswer(quizzAnswer: QuizzAnswerModel): void {
+    this.#quizzMakerService.pickAnswer(quizzAnswer);
   }
 
   /**
    * Change  the quizz line passed as a parameter
-   * @param quizLine the quizz line to change
+   * @param quizzLine the quizz line to change
    */  
-  changeQuizzLine(quizLine: QuizzLineModel): void {
+  changeQuizzLine(quizzLine: QuizzLineModel): void {
     this.subscription.add(
-      this.quizzMakerService.changeQuizzLine(quizLine).subscribe()
+      this.#quizzMakerService.changeQuizzLine(quizzLine).subscribe()
     );
   }
 
@@ -125,8 +133,8 @@ export class QuizzComponent implements OnDestroy {
    * @param action the action to do
    */
   doQuizzAction(action: QuizzAction): void {
-    if(action === 'submit') this.quizzMakerService.showQuizzResults();
-    if(action === 'create') this.quizzMakerService.createNewQuizz();
+    if(action === 'submit') this.#quizzMakerService.showQuizzResults();
+    if(action === 'create') this.#quizzMakerService.createNewQuizz();
   }
 
 }

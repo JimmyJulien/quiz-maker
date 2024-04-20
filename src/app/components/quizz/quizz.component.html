@@ -1,14 +1,17 @@
-@if (isQuizzMakerKo$ | async) {
+
+<!-- Quizz KO -->
+@if (isQuizzMakerKo()) {
   <qzm-quizz-ko (reload)="onReload()"/>
 }
 @else {
-  @if (!(areResultsShown$ | async)) {
-    <!-- Form -->
+  <!-- Form (only for quizz) -->
+  @if (!(areResultsShown())) {
     <qzm-quizz-form 
-      [areQuizzCategoriesLoading]="areQuizzCategoriesLoading$ | async"
-      [quizCategories]="quizCategories$ | async"
-      [quizSubcategories]="quizSubcategories$ | async"
-      [quizDifficulties]="quizDifficulties$ | async"
+      [areQuizzCategoriesLoading]="areQuizzCategoriesLoading()"
+      [quizzCategories]="quizzCategories()"
+      [quizzSubcategories]="quizzSubcategories()"
+      [areQuizzDifficultiesLoading]="areQuizzDifficultiesLoading()"
+      [quizzDifficulties]="quizzDifficulties()"
       (selectCategory)="selectCategory($event)"
       (createQuizz)="createQuizzLines($event)"
     />
@@ -16,23 +19,23 @@
   
   <!-- Lines -->
   <qzm-quizz-lines
-    [areQuizzLinesLoading]="areQuizzLinesLoading$ | async"
-    [quizLines]="quizLines$ | async"
-    [canQuestionBeChanged]="canQuestionBeChanged$ | async"
-    [disabled]="areResultsShown$ | async"
+    [areQuizzLinesLoading]="areQuizzLinesLoading()"
+    [quizLines]="quizzLines()"
+    [canQuestionBeChanged]="canQuestionBeChanged()"
+    [disabled]="areResultsShown()"
     (pickAnswer)="pickAnswer($event)"
     (changeQuizzLine)="changeQuizzLine($event)"
   />
   
-  @if (areResultsShown$ | async) {
-    <!-- Score (only for results) -->
-    <qzm-quizz-score [quizLines]="quizLines$ | async"/>
+  <!-- Score (only for results) -->
+  @if (areResultsShown()) {
+    <qzm-quizz-score [quizLines]="quizzLines()"/>
   }
   
   <!-- Action -->
   <qzm-quizz-action
-    [areResultsShown]="areResultsShown$ | async"
-    [isQuizzComplete]="isQuizzComplete$ | async"
+    [areResultsShown]="areResultsShown()"
+    [isQuizzComplete]="isQuizzComplete()"
     (action)="doQuizzAction($event)"
   />
 }

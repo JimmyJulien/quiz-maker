@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiCategoryModel, ApiCategoryResponseModel } from '../models/api-category.model';
 import { QuizzCategoryModel } from '../models/quizz-category.model';
@@ -10,14 +10,14 @@ import { QuizzCategoryModel } from '../models/quizz-category.model';
 })
 export class QuizzCategoryService {
 
-  constructor(private readonly http: HttpClient) {}
+  readonly #http = inject(HttpClient);
 
   /**
    * Get categories from Open Trivia Database API
    * @returns the categories
    */
   private getApiCategories(): Observable<ApiCategoryModel[]> {
-    return this.http.get<ApiCategoryResponseModel>('https://opentdb.com/api_category.php')
+    return this.#http.get<ApiCategoryResponseModel>('https://opentdb.com/api_category.php')
     .pipe(
       map(apiQuizzCategoryResponse => apiQuizzCategoryResponse.trivia_categories),
     );

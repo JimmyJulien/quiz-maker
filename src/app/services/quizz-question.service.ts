@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiQuestionModel, ApiQuestionResponseModel } from '../models/api-question.model';
 
@@ -9,7 +9,7 @@ import { ApiQuestionModel, ApiQuestionResponseModel } from '../models/api-questi
 })
 export class QuizzQuestionService {
 
-  constructor(private readonly http: HttpClient) {}
+  readonly #http = inject(HttpClient);
 
   /**
    * Get questions from the Trivia Database API
@@ -19,7 +19,7 @@ export class QuizzQuestionService {
    * @returns the list of questions from the Trivia Database API
    */
   getApiQuestions(categoryId: number, difficultyValue: string): Observable<ApiQuestionModel[]> {
-    return this.http.get<ApiQuestionResponseModel>(
+    return this.#http.get<ApiQuestionResponseModel>(
       `https://opentdb.com/api.php?amount=5&category=${categoryId}&difficulty=${difficultyValue}&type=multiple`
     )
     .pipe(

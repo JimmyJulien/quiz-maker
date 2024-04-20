@@ -30,16 +30,19 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
   areQuizzCategoriesLoading = input<boolean | null>(false);
 
   /** Quizz categories from the parent */
-  quizCategories = input<string[] | null>([]);
+  quizzCategories = input<string[]>([]);
   
   /** Quizz subcategories from the parent */
-  quizSubcategories = input<string[] | null>([]);
+  quizzSubcategories = input<string[]>([]);
+
+  /** Quizz difficulties loading indicator from the parent */
+  areQuizzDifficultiesLoading = input<boolean>(false);
 
   /** Quizz difficulties from the parent */
-  quizDifficulties = input<QuizzDifficultyModel[] | null>([]);
+  quizzDifficulties = input<QuizzDifficultyModel[]>([]);
 
   /** Select a category */
-  selectCategory = output<string | null>();
+  selectCategory = output<string>();
 
   /** Create quizz event emitter to the parent*/
   createQuizz = output<QuizzConfigModel>();
@@ -73,21 +76,21 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
     if(!this.form) return;
 
     // Update category validators (here because not an async validator)
-    const quizCategories = changes['quizCategories'];
+    const quizzCategories = changes['quizzCategories'];
     
-    if(quizCategories?.currentValue?.length) {
+    if(quizzCategories?.currentValue?.length) {
       this.categoryControl.addValidators(
-        existingValidator(quizCategories.currentValue)
+        existingValidator(quizzCategories.currentValue)
       );
     }
 
     // Update subcategory control
-    const quizSubcategories = changes['quizSubcategories'];
+    const quizzSubcategories = changes['quizzSubcategories'];
 
-    if(quizSubcategories?.currentValue?.length) {
+    if(quizzSubcategories?.currentValue?.length) {
       this.form.addControl(
         this.SUBCATEGORY_FIELD,
-        new FormControl(null, [Validators.required, existingValidator(quizSubcategories.currentValue)])
+        new FormControl(null, [Validators.required, existingValidator(quizzSubcategories.currentValue)])
       );
     }
     else {
@@ -119,7 +122,7 @@ export class QuizzFormComponent implements OnInit, OnDestroy {
       .pipe(
         tap(category => {
           // Emit selected category
-          this.selectCategory.emit(category);
+          this.selectCategory.emit(category!);
 
           // Reset subcategory (if existing)
           this.subcategoryControl?.reset();
