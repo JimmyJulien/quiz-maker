@@ -1,7 +1,8 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, HostListener, Input, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, forwardRef, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 
+// TODO upgrade select with options
 @Component({
   selector: 'qzm-quizz-select',
   templateUrl: './quizz-select.component.html',
@@ -23,39 +24,39 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModu
 export class QuizzSelectComponent<T> implements ControlValueAccessor {
   
   /** Quizz select options */
-  @Input() options: T[] | null = null;
+  options = input.required<T[] | null>();
 
   /** Selected option */
-  @Input() selectedOption : T | null = null;
+  selectedOption = signal<T | null>(null);
 
   /** Quizz select placeholder */
-  @Input() placeholder: string | null = null;
+  placeholder = input<string | null>(null);
 
   /** Quizz select disabled state */
-  @Input() disabled: boolean | null = false;
+  disabled = model<boolean>(false);
 
   /** Option formatting function */
-  @Input() optionFormatFn: (value: T | null) => string | null = (value) => value as string;
+  optionFormatFn = input<((value: T | null) => string | null) | null>(null);
   
+  /** Indicates if quizz select options are visible */
+  areOptionsVisible = signal<boolean>(false);
+
   /** Quizz select mouse over listener */
   @HostListener('mouseover') onMouseover() {
-    if(!this.areOptionsVisible && !this.disabled) {
+    if(!this.areOptionsVisible() && !this.disabled()) {
       this.showOptions(true);
     }
   }
 
   /** Quizz select mouse leave listener */
   @HostListener('mouseleave') onMouseleave() {
-    if(this.areOptionsVisible && !this.disabled) {
+    if(this.areOptionsVisible() && !this.disabled()) {
       this.showOptions(false);
     }
   }
 
   /** Quizz select form control */
   control = new FormControl<string | null>(null);
-
-  /** Indicates if quizz select options are visible */
-  areOptionsVisible = false;
   
   /** On change quizz select method (used for ControlValueAccessor implementation) */
   onChange: (value: T | null) => void = () => {};
@@ -67,7 +68,7 @@ export class QuizzSelectComponent<T> implements ControlValueAccessor {
    * Show options if quizz input is not disabled when user focus on input
    */
   onInputFocus(): void {
-    if(!this.disabled) this.showOptions(true);
+    if(!this.disabled()) this.showOptions(true);
   }
 
   /**
@@ -91,13 +92,17 @@ export class QuizzSelectComponent<T> implements ControlValueAccessor {
    */
   onOptionClick(option: T) {
     // Set selected option
-    this.selectedOption = option;
+    this.selectedOption.set(option);
 
     // Set option input
-    this.control.setValue(this.optionFormatFn(option));
+    const optionFormatFn = this.optionFormatFn();
+    
+    if(optionFormatFn) {
+      this.control.setValue(optionFormatFn(option));
+    }
 
     //Emit value change
-    this.onChange(this.selectedOption)
+    this.onChange(this.selectedOption())
 
     // Hide options
     this.showOptions(false);
@@ -108,7 +113,7 @@ export class QuizzSelectComponent<T> implements ControlValueAccessor {
    * @param show show boolean
    */
   showOptions(show: boolean) {
-    this.areOptionsVisible = show;
+    this.areOptionsVisible.set(show);
   }
 
   /**
@@ -116,7 +121,11 @@ export class QuizzSelectComponent<T> implements ControlValueAccessor {
    * @param newValue the new control value
    */
   writeValue(newValue: T): void {
-    this.control.setValue(this.optionFormatFn(newValue));
+    const optionFormatFn = this.optionFormatFn();
+
+    if(optionFormatFn) {
+      this.control.setValue(optionFormatFn(newValue));
+    }
   }
 
   /**
@@ -140,7 +149,7 @@ export class QuizzSelectComponent<T> implements ControlValueAccessor {
    * @param isDisabled boolean to define if the control is disabled
    */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
 }
