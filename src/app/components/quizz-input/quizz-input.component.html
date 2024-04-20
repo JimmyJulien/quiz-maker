@@ -1,17 +1,17 @@
 <input
   class="input"
-  [ngClass]="{disabled}"
-  [placeholder]="placeholder"
+  [ngClass]="{disabled: disabled()}"
+  [placeholder]="placeholder()"
   [formControl]="control"
-  [tabIndex]="disabled ? -1 : 0"
+  [tabIndex]="disabled() ? -1 : 0"
   (focus)="onInputFocus()"
   (input)="onInputInput()"
   (keydown.Shift.Tab)="onInputBlur()"
 >
 
-@if (options?.length && areOptionsVisible) {
-  <div class="options-container" [ngClass]="{disabled}">
-    @for (option of filteredOptions$ | async; track $index) {
+@if (options()?.length && areOptionsVisible()) {
+  <div class="options-container" [ngClass]="{disabled: disabled()}">
+    @for (option of filteredOptions(); track $index) {
       <div
         class="option"
         tabindex="0"

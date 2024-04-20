@@ -1,7 +1,7 @@
 import { AsyncPipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, HostListener, Input, OnDestroy, OnInit, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, computed, forwardRef, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { BehaviorSubject, Observable, Subscription, combineLatest, map, of, tap } from 'rxjs';
+import { Subscription, tap } from 'rxjs';
 import { BoldFilterPipe } from 'src/app/pipes/bold-filter.pipe';
 
 @Component({
@@ -27,39 +27,50 @@ import { BoldFilterPipe } from 'src/app/pipes/bold-filter.pipe';
 export class QuizzInputComponent implements OnInit, OnDestroy, ControlValueAccessor {
 
   /** Quizz input options */
-  @Input() options: string[] | null = null;
+  options = input<string[] | null>(null);
 
   /** Quizz input placeholder */
-  @Input() placeholder: string | null = null;
+  placeholder = input<string | null>(null);
 
   /** Quizz input disabled state */
-  @Input() disabled = false;
+  disabled = model<boolean>(false);
+
+  /** Quizz input actual filter option */
+  filterOption = signal<string | null>(null);
+
+  /** Quizz input actual filtered options */
+  filteredOptions = computed(() => {
+    const toutesOptions = this.options();
+    const optionSaisie = this.filterOption();
+
+    // Handle case when no options
+    if(!toutesOptions) return null;
+
+    // Filter without case-sensitivity
+    return toutesOptions.filter(option => optionSaisie ? 
+      option.toLowerCase().includes(optionSaisie.toLowerCase()) : true
+    );
+  });
+
+  /** Indicates if quizz input options are visible */
+  areOptionsVisible = signal<boolean>(false);
 
   /** Quizz input mouse over listener */
   @HostListener('mouseover') onMouseover(): void {
-    if(!this.areOptionsVisible && !this.disabled) {
+    if(!this.areOptionsVisible() && !this.disabled()) {
       this.showOptions(true);
     }
   }
 
   /** Quizz input mouse leave listener */
   @HostListener('mouseleave') onMouseleave(): void {
-    if(this.areOptionsVisible && !this.disabled) {
+    if(this.areOptionsVisible() && !this.disabled()) {
       this.showOptions(false);
     }
   }
 
   /** Quizz input form control */
   control = new FormControl<string | null>(null);
-
-  /** Quizz input actual filter option */
-  filterOption$ = new BehaviorSubject<string | null>(null);
-
-  /** Quizz input actual filtered options */
-  filteredOptions$!: Observable<string[] | null>;
-
-  /** Indicates if quizz input options are visible */
-  areOptionsVisible = false;
 
   /** On change quizz input method (used for ControlValueAccessor implementation) */
   onChange: (value: string | null) => void = () => {};
@@ -71,33 +82,12 @@ export class QuizzInputComponent implements OnInit, OnDestroy, ControlValueAcces
   subscription = new Subscription();
 
   ngOnInit(): void {
-    this.defineFilteredOptions();
+    //this.defineFilteredOptions();
     this.updateOnValueChange();
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
-  }
-
-  /**
-   * Define filtered options of custom dropdown
-   */
-  private defineFilteredOptions() {
-    this.filteredOptions$ = combineLatest([
-      of(this.options),
-      this.filterOption$,
-    ])
-    .pipe(
-      map(([options, optionSaisie]) => {
-        // Handle case when no options
-        if(!options) return null;
-  
-        // Filter without case-sensitivity
-        return options.filter(option => optionSaisie ? 
-          option.toLowerCase().includes(optionSaisie.toLowerCase()) : true
-        );
-      })
-    );
   }
 
   /**
@@ -109,7 +99,7 @@ export class QuizzInputComponent implements OnInit, OnDestroy, ControlValueAcces
       .pipe(
         tap(value => {
           // Update filter option
-          this.filterOption$.next(value);
+          this.filterOption.set(value);
   
           // Apply onChange method
           this.onChange(value);
@@ -123,14 +113,14 @@ export class QuizzInputComponent implements OnInit, OnDestroy, ControlValueAcces
    * Show options if quizz input is not disabled when user focus on input
    */
   onInputFocus(): void {
-    if(!this.disabled) this.showOptions(true);
+    if(!this.disabled()) this.showOptions(true);
   }
 
   /**
    * Show options if quizz input is not disabled when user enter a value in the quizz input
    */
   onInputInput(): void {
-    if(!this.disabled) this.showOptions(true);
+    if(!this.disabled()) this.showOptions(true);
   }
 
   /**
@@ -165,7 +155,7 @@ export class QuizzInputComponent implements OnInit, OnDestroy, ControlValueAcces
    * @param show show boolean
    */
   showOptions(show: boolean) {
-    this.areOptionsVisible = show;
+    this.areOptionsVisible.set(show);
   }
 
   /**
@@ -197,7 +187,7 @@ export class QuizzInputComponent implements OnInit, OnDestroy, ControlValueAcces
    * @param isDisabled boolean to define if the control is disabled
    */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
 }
