@@ -1,28 +1,28 @@
-@if (areQuizzLinesLoading) {
+@if (areQuizzLinesLoading()) {
   <!-- Quizz loading -->
   <div class="loading">Your quizz is loading...</div>
 }
 @else {
-  @if (quizLines?.length) {
+  @if (quizLines()?.length) {
     <!-- Quizz lines -->
-    @for (quizLine of quizLines; track $index) {
-      <div class="quizz-line" [ngClass]="{disabled}">
+    @for (quizLine of quizLines(); track $index) {
+      <div class="quizz-line" [ngClass]="{disabled: disabled()}">
         <div class="quizz-question" [innerHTML]="quizLine.question"></div>
         <div class="quizz-answers">
           @for (answer of quizLine.answers; track $index) {
             <button
               class="quizz-button"
-              [ngClass]="answer | qzmAnswerColor:quizLine:disabled"
-              [tabindex]="disabled ? -1 : 0"
-              (click)="pickAnswerForQuestion(answer, quizLine.question)"
+              [ngClass]="answer | qzmAnswerColor:quizLine:disabled()"
+              [tabindex]="disabled() ? -1 : 0"
+              (click)="pickAnswer.emit({answer, question: quizLine.question})"
             >
               <span [innerHTML]="answer"></span>
             </button>
           }
   
-          @if (canQuestionBeChanged && !disabled) {
+          @if (canQuestionBeChanged() && !disabled()) {
             <!-- Change question button -->
-            <button class="blue" (click)="onChangeQuizzLine(quizLine)">
+            <button class="blue" (click)="changeQuizzLine.emit(quizLine)">
               Change
             </button>
           }
