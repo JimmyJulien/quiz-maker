@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'qzm-quizz-action',
@@ -10,12 +10,12 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 export class QuizzActionComponent {
 
   /** Indicates if results are shown */
-  @Input() areResultsShown: boolean | null = false;
+  areResultsShown = input<boolean | null>(false);
 
   /** Indicates if quizz is complete */
-  @Input() isQuizzComplete: boolean | null = false;
+  isQuizzComplete = input<boolean | null>(false);
 
   /** Action event emitter to the parent */
-  @Output() action = new EventEmitter<'submit' | 'create'>();
+  action = output<'submit' | 'create'>();
 
 }

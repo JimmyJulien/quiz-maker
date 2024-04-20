@@ -1,4 +1,4 @@
-@if (!areResultsShown && isQuizzComplete) {
+@if (!areResultsShown() && isQuizzComplete()) {
   <!-- Submit quizz (only for complete quizz)-->
   <button class="submit-button" (click)="action.emit('submit')">
     Submit
@@ -6,7 +6,7 @@
 }
 
 <!-- New quizz (only or results) -->
-@if (areResultsShown) {
+@if (areResultsShown()) {
   <button class="create-button" (click)="action.emit('create')">
     New quizz
   </button>
