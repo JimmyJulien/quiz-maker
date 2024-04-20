@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angul
 @Component({
   selector: 'qzm-quizz-ko',
   templateUrl: './quizz-ko.component.html',
-  styleUrls: ['./quizz-ko.component.scss'],
+  styleUrl: './quizz-ko.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })

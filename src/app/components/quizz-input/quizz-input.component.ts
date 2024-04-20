@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, Input, OnDestroy, OnInit, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, Observable, Subscription, combineLatest, map, of, tap } from 'rxjs';
@@ -7,11 +7,12 @@ import { BoldFilterPipe } from 'src/app/pipes/bold-filter.pipe';
 @Component({
   selector: 'qzm-quizz-input',
   templateUrl: './quizz-input.component.html',
-  styleUrls: ['./quizz-input.component.scss'],
+  styleUrl: './quizz-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
+    AsyncPipe,
     ReactiveFormsModule,
     BoldFilterPipe,
   ],

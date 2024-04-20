@@ -1,17 +1,13 @@
+@if (!areResultsShown && isQuizzComplete) {
   <!-- Submit quizz (only for complete quizz)-->
-  <button
-    *ngIf="!areResultsShown && isQuizzComplete"
-    class="submit-button"
-    (click)="action.emit('submit')"
-  >
+  <button class="submit-button" (click)="action.emit('submit')">
     Submit
   </button>
+}
 
-  <!-- New quizz (only or results) -->
-  <button
-    *ngIf="areResultsShown"
-    class="create-button"
-    (click)="action.emit('create')"
-  >
+<!-- New quizz (only or results) -->
+@if (areResultsShown) {
+  <button class="create-button" (click)="action.emit('create')">
     New quizz
   </button>
+}

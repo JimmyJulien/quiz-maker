@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { QuizzAnswerModel } from 'src/app/models/quizz-answer.model';
 import { QuizzLineModel } from 'src/app/models/quizz-line.model';
@@ -7,11 +7,11 @@ import { AnswerColorPipe } from 'src/app/pipes/answer-color.pipe';
 @Component({
   selector: 'qzm-quizz-lines',
   templateUrl: './quizz-lines.component.html',
-  styleUrls: ['./quizz-lines.component.scss'],
+  styleUrl: './quizz-lines.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
     AnswerColorPipe,
   ]
 })

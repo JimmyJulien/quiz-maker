@@ -1,20 +1,18 @@
-<!-- Quizz KO -->
-<ng-container *ngIf="isQuizzMakerKo$ | async; else quizzMaker">
-  <qzm-quizz-ko (reload)="onReload()"></qzm-quizz-ko>
-</ng-container>
-
-<!-- Quizz Maker-->
-<ng-template #quizzMaker>
-  <!-- Form -->
-  <qzm-quizz-form 
-    *ngIf="!(areResultsShown$ | async)"
-    [areQuizzCategoriesLoading]="areQuizzCategoriesLoading$ | async"
-    [quizCategories]="quizCategories$ | async"
-    [quizSubcategories]="quizSubcategories$ | async"
-    [quizDifficulties]="quizDifficulties$ | async"
-    (selectCategory)="selectCategory($event)"
-    (createQuizz)="createQuizzLines($event)">
-  </qzm-quizz-form>
+@if (isQuizzMakerKo$ | async) {
+  <qzm-quizz-ko (reload)="onReload()"/>
+}
+@else {
+  @if (!(areResultsShown$ | async)) {
+    <!-- Form -->
+    <qzm-quizz-form 
+      [areQuizzCategoriesLoading]="areQuizzCategoriesLoading$ | async"
+      [quizCategories]="quizCategories$ | async"
+      [quizSubcategories]="quizSubcategories$ | async"
+      [quizDifficulties]="quizDifficulties$ | async"
+      (selectCategory)="selectCategory($event)"
+      (createQuizz)="createQuizzLines($event)"
+    />
+  }
   
   <!-- Lines -->
   <qzm-quizz-lines
@@ -23,20 +21,18 @@
     [canQuestionBeChanged]="canQuestionBeChanged$ | async"
     [disabled]="areResultsShown$ | async"
     (pickAnswer)="pickAnswer($event)"
-    (changeQuizzLine)="changeQuizzLine($event)">
-  </qzm-quizz-lines>
-
-  <!-- Score (only for results) -->
-  <qzm-quizz-score
-    *ngIf="areResultsShown$ | async"
-    [quizLines]="quizLines$ | async">
-  </qzm-quizz-score>
-
+    (changeQuizzLine)="changeQuizzLine($event)"
+  />
+  
+  @if (areResultsShown$ | async) {
+    <!-- Score (only for results) -->
+    <qzm-quizz-score [quizLines]="quizLines$ | async"/>
+  }
+  
   <!-- Action -->
   <qzm-quizz-action
     [areResultsShown]="areResultsShown$ | async"
     [isQuizzComplete]="isQuizzComplete$ | async"
-    (action)="doQuizzAction($event)">
-  </qzm-quizz-action>
-
-</ng-template>
+    (action)="doQuizzAction($event)"
+  />
+}

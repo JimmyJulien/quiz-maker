@@ -9,19 +9,18 @@
   (keydown.Shift.Tab)="onInputBlur()"
 >
 
-<div
-  *ngIf="options?.length && areOptionsVisible"
-  class="options-container"
-  [ngClass]="{disabled}"
->
-  <div
-    *ngFor="let option of options; last as isLastOption"
-    class="option"
-    tabindex="0"
-    (click)="onOptionClick(option)"
-    (keydown.Enter)="onOptionClick(option)"
-    (keydown.Tab)="onOptionsTabKeydown(isLastOption)"
-  >
-    {{ optionFormatFn(option) }}
+@if (options?.length && areOptionsVisible) {
+  <div class="options-container" [ngClass]="{disabled}">
+    @for (option of options; track $index) {
+      <div
+        class="option"
+        tabindex="0"
+        (click)="onOptionClick(option)"
+        (keydown.Enter)="onOptionClick(option)"
+        (keydown.Tab)="onOptionsTabKeydown($last)"
+      >
+        {{ optionFormatFn(option) }}
+      </div>
+    }
   </div>
-</div>
+}

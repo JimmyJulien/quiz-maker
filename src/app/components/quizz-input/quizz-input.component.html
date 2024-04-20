@@ -9,19 +9,18 @@
   (keydown.Shift.Tab)="onInputBlur()"
 >
 
-<div
-  *ngIf="options?.length && areOptionsVisible"
-  class="options-container"
-  [ngClass]="{disabled}"
->
-  <div
-    *ngFor="let option of filteredOptions$ | async; last as isLastOption"
-    class="option"
-    tabindex="0"
-    [innerHTML]="option | qzmBoldFilter:control.value"
-    (click)="onOptionClick(option)"
-    (keydown.Enter)="onOptionClick(option)"
-    (keydown.Tab)="onOptionsTabKeydown(isLastOption)"
-  >
+@if (options?.length && areOptionsVisible) {
+  <div class="options-container" [ngClass]="{disabled}">
+    @for (option of filteredOptions$ | async; track $index) {
+      <div
+        class="option"
+        tabindex="0"
+        [innerHTML]="option | qzmBoldFilter:control.value"
+        (click)="onOptionClick(option)"
+        (keydown.Enter)="onOptionClick(option)"
+        (keydown.Tab)="onOptionsTabKeydown($last)"
+      >
+      </div>
+    }
   </div>
-</div>
+}

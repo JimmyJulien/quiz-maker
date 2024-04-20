@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription, tap } from 'rxjs';
@@ -11,11 +10,10 @@ import { QuizzSelectComponent } from '../quizz-select/quizz-select.component';
 @Component({
   selector: 'qzm-quizz-form',
   templateUrl: './quizz-form.component.html',
-  styleUrls: ['./quizz-form.component.scss'],
+  styleUrl: './quizz-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    NgIf,
     ReactiveFormsModule,
     QuizzInputComponent,
     QuizzSelectComponent,

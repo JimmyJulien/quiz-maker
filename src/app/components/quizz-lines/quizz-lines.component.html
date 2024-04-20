@@ -1,32 +1,33 @@
-<!-- Quizz loading -->
-<ng-container *ngIf="areQuizzLinesLoading; else questions">
+@if (areQuizzLinesLoading) {
+  <!-- Quizz loading -->
   <div class="loading">Your quizz is loading...</div>
-</ng-container>
-
-<!-- Quizz lines -->
-<ng-template #questions>
-  <ng-container *ngIf="quizLines?.length">
-    <div class="quizz-line" *ngFor="let quizLine of quizLines" [ngClass]="{disabled}">
-      <div class="quizz-question" [innerHTML]="quizLine.question"></div>
-      <div class="quizz-answers">
-        <ng-container *ngFor="let answer of quizLine.answers">
-          <button
-            class="quizz-button"
-            [ngClass]="answer | qzmAnswerColor:quizLine:disabled"
-            [tabindex]="disabled ? -1 : 0"
-            (click)="pickAnswerForQuestion(answer, quizLine.question)"
-          >
-            <span [innerHTML]="answer"></span>
-          </button>
-        </ng-container>
-        <!-- Change question button -->
-        <button
-          *ngIf="canQuestionBeChanged && !disabled"
-          class="blue"
-          (click)="onChangeQuizzLine(quizLine)">
-          Change
-        </button>
+}
+@else {
+  @if (quizLines?.length) {
+    <!-- Quizz lines -->
+    @for (quizLine of quizLines; track $index) {
+      <div class="quizz-line" [ngClass]="{disabled}">
+        <div class="quizz-question" [innerHTML]="quizLine.question"></div>
+        <div class="quizz-answers">
+          @for (answer of quizLine.answers; track $index) {
+            <button
+              class="quizz-button"
+              [ngClass]="answer | qzmAnswerColor:quizLine:disabled"
+              [tabindex]="disabled ? -1 : 0"
+              (click)="pickAnswerForQuestion(answer, quizLine.question)"
+            >
+              <span [innerHTML]="answer"></span>
+            </button>
+          }
+  
+          @if (canQuestionBeChanged && !disabled) {
+            <!-- Change question button -->
+            <button class="blue" (click)="onChangeQuizzLine(quizLine)">
+              Change
+            </button>
+          }
+        </div>
       </div>
-    </div>
-  </ng-container>
-</ng-template>
+    }
+  }
+}

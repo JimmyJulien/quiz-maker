@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { QuizzAnswerModel } from 'src/app/models/quizz-answer.model';
@@ -15,11 +15,11 @@ import { QuizzScoreComponent } from '../quizz-score/quizz-score.component';
 
 @Component({
   templateUrl: './quizz.component.html',
-  styleUrls: ['./quizz.component.scss'],
+  styleUrl: './quizz.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    CommonModule,
+    AsyncPipe,
     QuizzKoComponent,
     QuizzFormComponent,
     QuizzLinesComponent,

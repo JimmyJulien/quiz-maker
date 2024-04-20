@@ -1,15 +1,11 @@
-import { HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'qzm-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  styleUrl: './app.component.scss',
   standalone: true,
-  imports: [
-    RouterModule,
-    HttpClientModule,
-  ]
+  imports: [RouterOutlet]
 })
 export class AppComponent {}
