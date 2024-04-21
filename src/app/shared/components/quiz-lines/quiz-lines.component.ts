@@ -1,8 +1,8 @@
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { QuizAnswerModel } from 'src/app/models/quiz-answer.model';
-import { QuizLineModel } from 'src/app/models/quiz-line.model';
-import { AnswerColorPipe } from 'src/app/pipes/answer-color.pipe';
+import { QuizAnswerModel } from 'src/app/shared/models/quiz-answer.model';
+import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
+import { AnswerColorPipe } from 'src/app/shared/pipes/answer-color.pipe';
 
 @Component({
   selector: 'qzm-quiz-lines',

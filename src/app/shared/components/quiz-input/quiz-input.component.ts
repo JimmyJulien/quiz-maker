@@ -2,7 +2,7 @@ import { AsyncPipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit, computed, forwardRef, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { Subscription, tap } from 'rxjs';
-import { BoldFilterPipe } from 'src/app/pipes/bold-filter.pipe';
+import { BoldFilterPipe } from 'src/app/shared/pipes/bold-filter.pipe';
 
 // Accept any type (not just string)
 @Component({

@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit, SimpleChanges, computed, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription, forkJoin, tap } from 'rxjs';
-import { QuizConfigModel } from '../models/quiz-config.model';
-import { QuizDifficultyModel } from '../models/quiz-difficulty.model';
-import { QuizMakerService } from '../services/quiz-maker.service';
 import { QuizInputComponent } from '../shared/components/quiz-input/quiz-input.component';
 import { QuizSelectComponent } from '../shared/components/quiz-select/quiz-select.component';
-import { existingValidator } from '../validators/existing.validator';
+import { QuizConfigModel } from '../shared/models/quiz-config.model';
+import { QuizDifficultyModel } from '../shared/models/quiz-difficulty.model';
+import { QuizMakerService } from '../shared/services/quiz-maker.service';
+import { existingValidator } from '../shared/validators/existing.validator';
 
 @Component({
   standalone: true,

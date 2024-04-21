@@ -1,13 +1,13 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { QuizLineModel } from 'src/app/models/quiz-line.model';
-import { QuizMakerUtils } from '../utils/quiz-maker.utils';
+import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
+import { QuizMakerUtils } from '../../shared/utils/quiz-maker.utils';
 
 /** Pipe used to transform quiz lines into a formatted score */
 @Pipe({
-  name: 'qzmScoreFormat',
+  name: 'qzmResultScoreFormat',
   standalone: true,
 })
-export class ScoreFormatPipe implements PipeTransform {
+export class ResultScoreFormatPipe implements PipeTransform {
 
   /**
    * Transform quiz lines into a formatted score

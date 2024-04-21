@@ -1,8 +1,8 @@
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { QuizLineModel } from 'src/app/models/quiz-line.model';
-import { ScoreColorPipe } from 'src/app/pipes/score-color.pipe';
-import { ScoreFormatPipe } from 'src/app/pipes/score-format.pipe';
+import { ResultScoreColorPipe } from 'src/app/result/result-score/result-score-color.pipe';
+import { ResultScoreFormatPipe } from 'src/app/result/result-score/result-score-format.pipe';
+import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
 
 @Component({
   selector: 'qzm-result-score',
@@ -12,8 +12,8 @@ import { ScoreFormatPipe } from 'src/app/pipes/score-format.pipe';
   standalone: true,
   imports: [
     NgClass,
-    ScoreColorPipe,
-    ScoreFormatPipe,
+    ResultScoreColorPipe,
+    ResultScoreFormatPipe,
   ]
 })
 export class ResultScoreComponent {

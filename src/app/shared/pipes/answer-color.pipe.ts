@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { QuizLineModel } from 'src/app/models/quiz-line.model';
+import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
 
 /** Pipe used to transform an answer and a quiz line into a color class */
 @Pipe({

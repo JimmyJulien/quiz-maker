@@ -1,14 +1,13 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { QuizLineModel } from 'src/app/models/quiz-line.model';
-import { QuizMakerUtils } from 'src/app/utils/quiz-maker.utils';
-import { ZeroToFive } from '../types/zero-to-five.type';
+import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
+import { QuizMakerUtils } from 'src/app/shared/utils/quiz-maker.utils';
 
 /** Pipe used to transform quiz lines into a score color class */
 @Pipe({
-  name: 'qzmScoreColor',
+  name: 'qzmResultScoreColor',
   standalone: true,
 })
-export class ScoreColorPipe implements PipeTransform {
+export class ResultScoreColorPipe implements PipeTransform {
 
   /**
    * Transform quiz lines into a score color class
@@ -17,7 +16,7 @@ export class ScoreColorPipe implements PipeTransform {
    */
   transform(quizLines: QuizLineModel[] | null): 'incorrect' | 'neutral' | 'correct' {
     // Get correct answers number
-    const correctAnswersNumber = QuizMakerUtils.getCorrectAnswersNumberFromQuizLines(quizLines) as ZeroToFive;
+    const correctAnswersNumber: number = QuizMakerUtils.getCorrectAnswersNumberFromQuizLines(quizLines);
 
     // If 0 or 1 correct answers => red
     if(correctAnswersNumber === 0 || correctAnswersNumber === 1) {

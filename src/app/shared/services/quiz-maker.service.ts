@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, catchError, finalize, mergeMap, of, retry, tap, throwError } from 'rxjs';
-import { ApiQuestionModel } from 'src/app/models/api-question.model';
+import { ApiQuestionModel } from 'src/app/shared/models/api-question.model';
 import { QuizAnswerModel } from '../models/quiz-answer.model';
 import { QuizCategoryModel } from '../models/quiz-category.model';
 import { QuizConfigModel } from '../models/quiz-config.model';

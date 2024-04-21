@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { quizGuard } from './components/quiz/quiz.guard';
+import { quizGuard } from './quiz/quiz.guard';
 import { resultGuard } from './result/result.guard';
 
 export const routes: Routes = [
@@ -9,7 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'quiz',
-    loadComponent: () => import('./components/quiz/quiz.component').then(c => c.QuizComponent),
+    loadComponent: () => import('./quiz/quiz.component').then(c => c.QuizComponent),
     canActivate: [quizGuard]
   },
   {

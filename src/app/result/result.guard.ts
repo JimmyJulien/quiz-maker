@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { QuizMakerService } from '../services/quiz-maker.service';
+import { QuizMakerService } from '../shared/services/quiz-maker.service';
 
 export const resultGuard: CanActivateFn = () => {
   const quizMakerService = inject(QuizMakerService);

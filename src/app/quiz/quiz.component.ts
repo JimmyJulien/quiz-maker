@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { QuizAnswerModel } from 'src/app/models/quiz-answer.model';
-import { QuizLineModel } from 'src/app/models/quiz-line.model';
-import { QuizMakerService } from 'src/app/services/quiz-maker.service';
-import { ResultScoreComponent } from '../../result/result-score/result-score.component';
-import { QuizLinesComponent } from '../../shared/components/quiz-lines/quiz-lines.component';
-import { QuizKoComponent } from '../quiz-ko/quiz-ko.component';
+import { QuizAnswerModel } from 'src/app/shared/models/quiz-answer.model';
+import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
+import { QuizMakerService } from 'src/app/shared/services/quiz-maker.service';
+import { ResultScoreComponent } from '../result/result-score/result-score.component';
+import { QuizLinesComponent } from '../shared/components/quiz-lines/quiz-lines.component';
+import { QuizKoComponent } from './quiz-ko/quiz-ko.component';
 
 @Component({
   templateUrl: './quiz.component.html',
