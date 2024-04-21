@@ -5,9 +5,9 @@ import { ScoreColorPipe } from 'src/app/pipes/score-color.pipe';
 import { ScoreFormatPipe } from 'src/app/pipes/score-format.pipe';
 
 @Component({
-  selector: 'qzm-quiz-score',
-  templateUrl: './quiz-score.component.html',
-  styleUrl: './quiz-score.component.scss',
+  selector: 'qzm-result-score',
+  templateUrl: './result-score.component.html',
+  styleUrl: './result-score.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
@@ -16,7 +16,6 @@ import { ScoreFormatPipe } from 'src/app/pipes/score-format.pipe';
     ScoreFormatPipe,
   ]
 })
-export class QuizScoreComponent {
-  /** Quiz lines from the parent */
+export class ResultScoreComponent {
   quizLines = input<QuizLineModel[] | null>([]);
 }

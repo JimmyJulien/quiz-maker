@@ -85,10 +85,6 @@ export class QuizMakerService {
   #canQuestionBeChanged = signal<boolean>(true);
   canQuestionBeChanged = computed(() => this.#canQuestionBeChanged());
 
-  /** Indicates if results are shown */
-  #areResultsShown = signal<boolean>(false);
-  areResultsShown = computed(() => this.#areResultsShown());
-
   /**
    * Initialize the quiz categories
    * @returns the quiz categories
@@ -261,7 +257,7 @@ export class QuizMakerService {
    * Show quiz results
    */
   showQuizResults(): void {
-    this.#areResultsShown.set(true);
+    this.#router.navigate(['/result']);
   }
 
   /**
@@ -344,9 +340,6 @@ export class QuizMakerService {
 
     // Bonus question can be used again
     this.#canQuestionBeChanged.set(true);
-
-    // Results are not shown anymore
-    this.#areResultsShown.set(false);
   }
 
   /**

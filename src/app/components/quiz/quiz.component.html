@@ -1,28 +1,22 @@
 
-<!-- Quiz KO -->
 @if (isQuizMakerKo()) {
   <qzm-quiz-ko (reload)="onReload()"/>
 }
 @else {
-  <!-- Lines -->
   <qzm-quiz-lines
     [areQuizLinesLoading]="areQuizLinesLoading()"
     [quizLines]="quizLines()"
     [canQuestionBeChanged]="canQuestionBeChanged()"
-    [disabled]="areResultsShown()"
+    [disabled]="false"
     (pickAnswer)="pickAnswer($event)"
     (changeQuizLine)="changeQuizLine($event)"
   />
   
-  <!-- Score (only for results) -->
-  @if (areResultsShown()) {
-    <qzm-quiz-score [quizLines]="quizLines()"/>
+  @if (isQuizComplete()) {
+    <div class="action-buttons">
+      <button class="submit-button" (click)="showResults()">
+        Submit
+      </button>
+    </div>
   }
-  
-  <!-- Action -->
-  <qzm-quiz-action
-    [areResultsShown]="areResultsShown()"
-    [isQuizComplete]="isQuizComplete()"
-    (action)="doQuizAction($event)"
-  />
 }

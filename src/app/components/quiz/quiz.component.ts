@@ -3,12 +3,9 @@ import { Subscription } from 'rxjs';
 import { QuizAnswerModel } from 'src/app/models/quiz-answer.model';
 import { QuizLineModel } from 'src/app/models/quiz-line.model';
 import { QuizMakerService } from 'src/app/services/quiz-maker.service';
-import { QuizAction } from 'src/app/types/quiz-action.type';
-import { QuizActionComponent } from '../quiz-action/quiz-action.component';
-import { QuizFormComponent } from '../quiz-form/quiz-form.component';
+import { ResultScoreComponent } from '../../result/result-score/result-score.component';
+import { QuizLinesComponent } from '../../shared/components/quiz-lines/quiz-lines.component';
 import { QuizKoComponent } from '../quiz-ko/quiz-ko.component';
-import { QuizLinesComponent } from '../quiz-lines/quiz-lines.component';
-import { QuizScoreComponent } from '../quiz-score/quiz-score.component';
 
 @Component({
   templateUrl: './quiz.component.html',
@@ -17,10 +14,8 @@ import { QuizScoreComponent } from '../quiz-score/quiz-score.component';
   standalone: true,
   imports: [
     QuizKoComponent,
-    QuizFormComponent,
     QuizLinesComponent,
-    QuizScoreComponent,
-    QuizActionComponent,
+    ResultScoreComponent,
   ],
 })
 export class QuizComponent implements OnDestroy {
@@ -29,9 +24,6 @@ export class QuizComponent implements OnDestroy {
 
   /** Quiz maker KO indicator from the quiz service */
   isQuizMakerKo = this.#quizMakerService.isQuizMakerKo;
-
-  /** Indicates if quiz results are actually shown */
-  areResultsShown = this.#quizMakerService.areResultsShown;
 
   /** Quiz lines loading indicator from the quiz service */
   areQuizLinesLoading = this.#quizMakerService.areQuizLinesLoading;
@@ -81,12 +73,10 @@ export class QuizComponent implements OnDestroy {
   }
 
   /**
-   * Do the quiz action passed as a parameter
-   * @param action the action to do
+   * Show the quiz results
    */
-  doQuizAction(action: QuizAction): void {
-    if(action === 'submit') this.#quizMakerService.showQuizResults();
-    if(action === 'create') this.#quizMakerService.createNewQuiz();
+  showResults(): void {
+    this.#quizMakerService.showQuizResults();
   }
 
 }

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { quizGuard } from './guards/quiz.guard';
+import { quizGuard } from './components/quiz/quiz.guard';
+import { resultGuard } from './result/result.guard';
 
-/** App routes */
 export const routes: Routes = [
   {
     path: 'home',
@@ -11,6 +11,11 @@ export const routes: Routes = [
     path: 'quiz',
     loadComponent: () => import('./components/quiz/quiz.component').then(c => c.QuizComponent),
     canActivate: [quizGuard]
+  },
+  {
+    path: 'result',
+    loadComponent: () => import('./result/result.component').then(c => c.ResultComponent),
+    canActivate: [resultGuard]
   },
   {
     path: '',

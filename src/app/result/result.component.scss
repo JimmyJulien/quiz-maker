@@ -1,17 +1,12 @@
 @use 'layout';
 @use 'colors';
 
-:host {
-  @include layout.flex(column, center, center, 1rem);
-  padding: 1rem;
-}
-
 .action-buttons {
   @include layout.flex($j-content: center, $a-items: center);
   width: 100%;
 }
 
-.submit-button {
+.create-button {
   min-height: 4rem;
   width: 25%;
   font-size: 1.3rem;
