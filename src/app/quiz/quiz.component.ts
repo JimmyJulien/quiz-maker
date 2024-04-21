@@ -4,7 +4,7 @@ import { QuizAnswerModel } from 'src/app/shared/models/quiz-answer.model';
 import { QuizLineModel } from 'src/app/shared/models/quiz-line.model';
 import { QuizMakerService } from 'src/app/shared/services/quiz-maker.service';
 import { ResultScoreComponent } from '../result/result-score/result-score.component';
-import { QuizLinesComponent } from '../shared/components/quiz-lines/quiz-lines.component';
+import { QuizLineComponent } from '../shared/components/quiz-line/quiz-line.component';
 import { QuizKoComponent } from './quiz-ko/quiz-ko.component';
 
 @Component({
@@ -14,7 +14,7 @@ import { QuizKoComponent } from './quiz-ko/quiz-ko.component';
   standalone: true,
   imports: [
     QuizKoComponent,
-    QuizLinesComponent,
+    QuizLineComponent,
     ResultScoreComponent,
   ],
 })

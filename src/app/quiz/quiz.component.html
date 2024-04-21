@@ -1,17 +1,19 @@
-
 @if (isQuizMakerKo()) {
   <qzm-quiz-ko (reload)="onReload()"/>
 }
+@else if (areQuizLinesLoading()) {
+  <div class="loading">Your quiz is loading...</div>
+}
 @else {
-  <qzm-quiz-lines
-    [areQuizLinesLoading]="areQuizLinesLoading()"
-    [quizLines]="quizLines()"
-    [canQuestionBeChanged]="canQuestionBeChanged()"
-    [disabled]="false"
-    (pickAnswer)="pickAnswer($event)"
-    (changeQuizLine)="changeQuizLine($event)"
-  />
-  
+  @for (quizLine of quizLines(); track $index) {
+    <qzm-quiz-line
+      [quizLine]="quizLine"
+      [canQuestionBeChanged]="canQuestionBeChanged()"
+      (pickAnswer)="pickAnswer($event)"
+      (changeQuizLine)="changeQuizLine($event)"
+    />
+  }
+
   @if (isQuizComplete()) {
     <div class="action-buttons">
       <button class="submit-button" (click)="showResults()">

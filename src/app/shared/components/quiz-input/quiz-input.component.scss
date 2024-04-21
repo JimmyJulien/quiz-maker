@@ -31,5 +31,6 @@ $common-width: 16rem;
 }
 
 .disabled {
+  opacity: 50%;
   pointer-events: none;
 }

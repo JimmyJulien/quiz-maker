@@ -1,8 +1,8 @@
 <input
   class="input"
+  [formControl]="control"
   [ngClass]="{disabled: disabled()}"
   [placeholder]="placeholder()"
-  [formControl]="control"
   [tabIndex]="disabled() ? -1 : 0"
   (focus)="onInputFocus()"
   (input)="onInputInput()"

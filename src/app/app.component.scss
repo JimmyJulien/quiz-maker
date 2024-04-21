@@ -1,18 +1,33 @@
 @use 'layout';
 @use 'colors';
 
-:host {
-  @include layout.flex($direction: column, $a-items: center);
+$title-height: 99.2px;
+
+.header {
+  height: $title-height;
+  position: fixed;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+
+  h1 {
+    margin: 0;
+    padding: 0;
+  }
+
+  .main-title {
+    background-color: colors.$black;
+    color: colors.$white;
+    cursor: default;
+    font-family: DarkerGrotesque;
+    font-size: 4rem;
+    font-weight: 900;
+    padding-bottom: 0.75rem;
+  }
 }
 
-.main-title {
-  margin: 1rem 0;
-  padding: 1rem 2rem;
-  font-size: 4rem;
-  font-weight: 900;
-  font-family: DarkerGrotesque;
-  text-align: center;
-  background-color: colors.$black;
-  color: colors.$white;
-  cursor: default;
+.main {
+  position: relative;
+  top: $title-height;
 }

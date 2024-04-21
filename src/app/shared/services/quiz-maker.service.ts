@@ -230,6 +230,9 @@ export class QuizMakerService {
     // Get quiz category
     const quizCategory = this.getQuizCategory(this.#actualQuizConfig());
 
+    // Indicate that quiz lines are loading
+    this.#areQuizLinesLoading.set(true);
+
     // Get new lines
     return this.#questionService.getApiQuestions(quizCategory.id, configDifficulty)
     .pipe(
@@ -243,13 +246,15 @@ export class QuizMakerService {
 
         // Question can not be changed twice
         this.#canQuestionBeChanged.set(false);
-      }),
-      // Quiz is not complete anymore
-      tap(() => {
+
+        // Quiz is not complete anymore
         this.#isQuizComplete.set(false);
       }),
       // Retry until a new question is found
       retry(),
+      finalize(() => {
+        this.#areQuizLinesLoading.set(false);
+      })
     );
   }
   

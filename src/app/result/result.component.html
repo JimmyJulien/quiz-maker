@@ -1,7 +1,6 @@
-<qzm-quiz-lines
-  [quizLines]="quizLines()"
-  [disabled]="true"
-/>
+@for (quizLine of quizLines(); track $index) {
+  <qzm-quiz-line [quizLine]="quizLine" [disabled]="true"/>
+}
 
 <qzm-result-score [quizLines]="quizLines()"/>
 

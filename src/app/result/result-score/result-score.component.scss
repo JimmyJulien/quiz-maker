@@ -3,7 +3,7 @@
 
 .quiz-score {
   @include layout.flex($j-content: center, $a-items: center);
-  margin: 1rem 0;
+  margin: 1rem;
   border: dotted 4px;
   padding: 2rem 4rem;
   font-size: 2rem;

@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, SimpleChanges, computed, inject } from '@angular/core';
+import { Component, OnDestroy, computed, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription, forkJoin, tap } from 'rxjs';
 import { QuizInputComponent } from '../shared/components/quiz-input/quiz-input.component';
@@ -18,13 +19,19 @@ import { existingValidator } from '../shared/validators/existing.validator';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnDestroy {
 
   readonly CATEGORY_FIELD = 'category';
   readonly SUBCATEGORY_FIELD = 'subcategory';
   readonly DIFFICULTY_FIELD = 'difficulty';
 
   readonly #quizMakerService = inject(QuizMakerService);
+
+  /** Quiz form */
+  form: FormGroup = new FormGroup({
+    [this.CATEGORY_FIELD]: new FormControl(null, Validators.required),
+    [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required)
+  });
 
   /** Quiz categories loading indicator */
   areQuizCategoriesLoading = this.#quizMakerService.areQuizCategoriesLoading;
@@ -35,6 +42,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.#quizMakerService.quizCategories().map(category => category.name)
     )];
   });
+
   /** Quiz subcategories */
   quizSubcategories = this.#quizMakerService.quizSubcategories;
 
@@ -44,8 +52,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   /** Quiz difficulties */
   quizDifficulties = this.#quizMakerService.quizDifficulties;
 
-  /** Quiz form */
-  form!: FormGroup;
+  /** Quiz lines loading indicator */
+  isQuizLoading = this.#quizMakerService.areQuizLinesLoading;
 
   /** Category control getter */
   get categoryControl(): FormControl<string | null> {
@@ -69,6 +77,43 @@ export class HomeComponent implements OnInit, OnDestroy {
   subscription = new Subscription();
 
   constructor() {
+    // Initialize dropdowns
+    this.#initializeDropdowns();
+
+    // Update category control existing validator
+    this.#updateCategoryControlExistingValidator();
+
+    // Disable category control if loading
+    this.#handleCategoryControlLoading();
+
+    // Disable difficulty control if loading
+    this.#handleDifficultyControlLoading();
+
+    // Update category and subcategory controls when category change
+    this.#handleCategoryControlChange();
+
+    // Update subcategory control
+    this.#handleSubcategoryControl();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  /**
+   * Submit event emitting a create quiz event to te parent
+   */
+  onSubmit() {
+    const quizConfig: QuizConfigModel = {
+      category: this.categoryControl.value,
+      subcategory: this.subcategoryControl?.value,
+      difficulty: this.difficultyControl.value.value
+    };
+
+    this.#quizMakerService.createQuizLines(quizConfig).subscribe()
+  }
+
+  #initializeDropdowns() {
     this.subscription.add(
       forkJoin([
         this.#quizMakerService.initializeQuizCategories(),
@@ -78,52 +123,55 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // Handle first call before ngOnOnInit (form not yet initialized)
-    if(!this.form) return;
+  #updateCategoryControlExistingValidator() {
+    this.subscription.add(
+      toObservable(this.quizCategories)
+      .pipe(
+        tap(categories => {
+          if(categories.length > 0) {
+            this.categoryControl.addValidators(existingValidator(categories));
+          }
+        })
+      )
+      .subscribe()
+    );
+  }
 
-    // Update category validators (here because not an async validator)
-    const quizCategories = changes['quizCategories'];
+  #handleCategoryControlLoading() {
+    this.subscription.add(
+      toObservable(this.areQuizCategoriesLoading)
+      .pipe(
+        tap(loading => {
+          if(loading) {
+            this.categoryControl.disable();
+          }
+          else {
+            this.categoryControl.enable();
+          }
+        })
+      )
+      .subscribe()
+    );
+  }
+
+  #handleDifficultyControlLoading() {
+    this.subscription.add(
+      toObservable(this.areQuizDifficultiesLoading)
+      .pipe(
+        tap(loading => {
+          if(loading) {
+            this.difficultyControl.disable();
+          }
+          else {
+            this.difficultyControl.enable();
+          }
+        })
+      )
+      .subscribe()
+    );
+  }
     
-    if(quizCategories?.currentValue?.length) {
-      this.categoryControl.addValidators(
-        existingValidator(quizCategories.currentValue)
-      );
-    }
-
-    // Update subcategory control
-    const quizSubcategories = changes['quizSubcategories'];
-
-    if(quizSubcategories?.currentValue?.length) {
-      this.form.addControl(
-        this.SUBCATEGORY_FIELD,
-        new FormControl(null, [Validators.required, existingValidator(quizSubcategories.currentValue)])
-      );
-    }
-    else {
-      this.form.removeControl(this.SUBCATEGORY_FIELD);
-    }
-  }
-  
-  ngOnInit(): void {
-    this.initializeForm();
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
-
-  /**
-   * Initialize the quiz form and its controls
-   */
-  private initializeForm(): void {
-    // Initialize form
-    this.form = new FormGroup({
-      [this.CATEGORY_FIELD]: new FormControl(null, Validators.required),
-      [this.DIFFICULTY_FIELD]: new FormControl(null, Validators.required)
-    });
-
-    // Update category and subcategory when category change
+  #handleCategoryControlChange() {
     this.subscription.add(
       this.categoryControl.valueChanges
       .pipe(
@@ -139,16 +187,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Submit event emitting a create quiz event to te parent
-   */
-  onSubmit() {
-    const quizConfig: QuizConfigModel = {
-      category: this.categoryControl.value,
-      subcategory: this.subcategoryControl?.value,
-      difficulty: this.difficultyControl.value.value
-    };
-
-    this.#quizMakerService.createQuizLines(quizConfig).subscribe()
+  #handleSubcategoryControl() {
+    this.subscription.add(
+      toObservable(this.quizSubcategories)
+      .pipe(
+        tap(subcategories => {
+          if (subcategories.length > 0) {
+            this.form.addControl(
+              this.SUBCATEGORY_FIELD,
+              new FormControl(null, [Validators.required, existingValidator(subcategories)])
+            );
+          }
+          else {
+            this.form.removeControl(this.SUBCATEGORY_FIELD);
+          }
+        })
+      )
+      .subscribe()
+    );
   }
 }

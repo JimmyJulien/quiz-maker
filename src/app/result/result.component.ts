@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { QuizLinesComponent } from '../shared/components/quiz-lines/quiz-lines.component';
+import { QuizLineComponent } from '../shared/components/quiz-line/quiz-line.component';
 import { QuizMakerService } from '../shared/services/quiz-maker.service';
 import { ResultScoreComponent } from './result-score/result-score.component';
 
@@ -7,7 +7,7 @@ import { ResultScoreComponent } from './result-score/result-score.component';
   selector: 'qzm-result',
   standalone: true,
   imports: [
-    QuizLinesComponent,
+    QuizLineComponent,
     ResultScoreComponent,
   ],
   templateUrl: './result.component.html',

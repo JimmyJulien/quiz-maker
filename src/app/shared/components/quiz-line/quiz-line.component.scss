@@ -2,12 +2,7 @@
 @use 'colors';
 
 :host {
-  @include layout.flex($direction: column);
-}
-
-.loading {
-  font-size: 2rem;
-  font-weight: 700;
+  width: 100%;
 }
 
 .quiz-line {
