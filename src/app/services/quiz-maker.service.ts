@@ -94,6 +94,10 @@ export class QuizMakerService {
    * @returns the quiz categories
    */
   initializeQuizCategories(): Observable<QuizCategoryModel[]> {
+    if(this.quizCategories().length > 0) {
+      return of(this.quizCategories());
+    }
+
     // Start categories loading
     this.#areQuizCategoriesLoading.set(true);
 
@@ -119,6 +123,10 @@ export class QuizMakerService {
    * @returns the quiz difficulties
    */
   initializeQuizDifficulties(): Observable<QuizDifficultyModel[]> {
+    if(this.quizDifficulties().length) {
+      return of(this.quizDifficulties());
+    }
+
     // Start difficulties loading
     this.#areQuizDifficultiesLoading.set(true);
 
@@ -185,6 +193,7 @@ export class QuizMakerService {
         tap(apiQuestions => {
           const quizLines = apiQuestions.map(apiQuestion => this.createQuizLineFromApiQuestion(apiQuestion));
           this.#quizLines.set(quizLines);
+          this.#router.navigate(['/quiz']);
         }),
         // Handle error while creating quiz lines
         catchError((error: HttpErrorResponse) => {
@@ -260,6 +269,7 @@ export class QuizMakerService {
    */
   createNewQuiz(): void {
     this.resetQuiz();
+    this.#router.navigate(['/home']);
   }
 
   /**

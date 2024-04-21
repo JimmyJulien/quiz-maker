@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject } from '@angular/core';
-import { Subscription, forkJoin } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { QuizAnswerModel } from 'src/app/models/quiz-answer.model';
-import { QuizConfigModel } from 'src/app/models/quiz-config.model';
 import { QuizLineModel } from 'src/app/models/quiz-line.model';
 import { QuizMakerService } from 'src/app/services/quiz-maker.service';
 import { QuizAction } from 'src/app/types/quiz-action.type';
@@ -34,25 +33,6 @@ export class QuizComponent implements OnDestroy {
   /** Indicates if quiz results are actually shown */
   areResultsShown = this.#quizMakerService.areResultsShown;
 
-  /** Quiz categories loading indicator from the quiz service */
-  areQuizCategoriesLoading = this.#quizMakerService.areQuizCategoriesLoading;
-
-  /** Quiz categories from the quiz service */
-  quizCategories = computed(() => {
-    return [...new Set(
-      this.#quizMakerService.quizCategories().map(category => category.name)
-    )];
-  });
-
-  /** Quiz subcategories */
-  quizSubcategories = this.#quizMakerService.quizSubcategories;
-
-  /** Quiz difficulties loading indicator from the quiz service */
-  areQuizDifficultiesLoading = this.#quizMakerService.areQuizDifficultiesLoading;
-
-  /** Quiz difficulties from the quiz service */
-  quizDifficulties = this.#quizMakerService.quizDifficulties;
-
   /** Quiz lines loading indicator from the quiz service */
   areQuizLinesLoading = this.#quizMakerService.areQuizLinesLoading;
 
@@ -68,16 +48,6 @@ export class QuizComponent implements OnDestroy {
   /** Subscription used to unsubscribe when the component is destroyed */
   subscription = new Subscription();
 
-  ngOnInit(): void {
-    this.subscription.add(
-      forkJoin([
-        this.#quizMakerService.initializeQuizCategories(),
-        this.#quizMakerService.initializeQuizDifficulties(),
-      ])
-      .subscribe()
-    );
-  }
-
   /**
    * Unsubscribe subscription
    */
@@ -90,24 +60,6 @@ export class QuizComponent implements OnDestroy {
    */
   onReload(): void {
     this.#quizMakerService.reloadQuiz();
-  }
-
-  /**
-   * Select a new category
-   * @param category the new selected category
-   */
-  selectCategory(category: string | null): void {
-    this.#quizMakerService.selectCategory(category);
-  }
-
-  /**
-   * Create quiz lines from the quiz configuration passed in parameter
-   * @param quizConfig the quiz configuration
-   */
-  createQuizLines(quizConfig: QuizConfigModel): void {
-    this.subscription.add(
-      this.#quizMakerService.createQuizLines(quizConfig).subscribe()
-    );
   }
 
   /**

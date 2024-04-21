@@ -4,19 +4,6 @@
   <qzm-quiz-ko (reload)="onReload()"/>
 }
 @else {
-  <!-- Form (only for quiz) -->
-  @if (!(areResultsShown())) {
-    <qzm-quiz-form 
-      [areQuizCategoriesLoading]="areQuizCategoriesLoading()"
-      [quizCategories]="quizCategories()"
-      [quizSubcategories]="quizSubcategories()"
-      [areQuizDifficultiesLoading]="areQuizDifficultiesLoading()"
-      [quizDifficulties]="quizDifficulties()"
-      (selectCategory)="selectCategory($event)"
-      (createQuiz)="createQuizLines($event)"
-    />
-  }
-  
   <!-- Lines -->
   <qzm-quiz-lines
     [areQuizLinesLoading]="areQuizLinesLoading()"

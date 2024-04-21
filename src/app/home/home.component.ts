@@ -1,51 +1,48 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, SimpleChanges, input, output } from '@angular/core';
+import { Component, OnDestroy, OnInit, SimpleChanges, computed, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription, tap } from 'rxjs';
-import { QuizConfigModel } from 'src/app/models/quiz-config.model';
-import { QuizDifficultyModel } from 'src/app/models/quiz-difficulty.model';
-import { QuizInputComponent } from '../../shared/components/quiz-input/quiz-input.component';
-import { QuizSelectComponent } from '../../shared/components/quiz-select/quiz-select.component';
-import { existingValidator } from '../../validators/existing.validator';
+import { Subscription, forkJoin, tap } from 'rxjs';
+import { QuizConfigModel } from '../models/quiz-config.model';
+import { QuizDifficultyModel } from '../models/quiz-difficulty.model';
+import { QuizMakerService } from '../services/quiz-maker.service';
+import { QuizInputComponent } from '../shared/components/quiz-input/quiz-input.component';
+import { QuizSelectComponent } from '../shared/components/quiz-select/quiz-select.component';
+import { existingValidator } from '../validators/existing.validator';
 
-// TODO update form
 @Component({
-  selector: 'qzm-quiz-form',
-  templateUrl: './quiz-form.component.html',
-  styleUrl: './quiz-form.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     ReactiveFormsModule,
     QuizInputComponent,
     QuizSelectComponent,
   ],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss'
 })
-export class QuizFormComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy {
 
   readonly CATEGORY_FIELD = 'category';
   readonly SUBCATEGORY_FIELD = 'subcategory';
   readonly DIFFICULTY_FIELD = 'difficulty';
 
-  /** Quiz categories loading indicator from the parent */
-  areQuizCategoriesLoading = input<boolean | null>(false);
+  readonly #quizMakerService = inject(QuizMakerService);
 
-  /** Quiz categories from the parent */
-  quizCategories = input<string[]>([]);
-  
-  /** Quiz subcategories from the parent */
-  quizSubcategories = input<string[]>([]);
+  /** Quiz categories loading indicator */
+  areQuizCategoriesLoading = this.#quizMakerService.areQuizCategoriesLoading;
 
-  /** Quiz difficulties loading indicator from the parent */
-  areQuizDifficultiesLoading = input<boolean>(false);
+  /** Quiz categories */
+  quizCategories = computed(() => {
+    return [...new Set(
+      this.#quizMakerService.quizCategories().map(category => category.name)
+    )];
+  });
+  /** Quiz subcategories */
+  quizSubcategories = this.#quizMakerService.quizSubcategories;
 
-  /** Quiz difficulties from the parent */
-  quizDifficulties = input<QuizDifficultyModel[]>([]);
+  /** Quiz difficulties loading indicator */
+  areQuizDifficultiesLoading = this.#quizMakerService.areQuizDifficultiesLoading;
 
-  /** Select a category */
-  selectCategory = output<string>();
-
-  /** Create quiz event emitter to the parent*/
-  createQuiz = output<QuizConfigModel>();
+  /** Quiz difficulties */
+  quizDifficulties = this.#quizMakerService.quizDifficulties;
 
   /** Quiz form */
   form!: FormGroup;
@@ -70,6 +67,16 @@ export class QuizFormComponent implements OnInit, OnDestroy {
   
   /** Main subscription used to handle unsubscription on component destruction */
   subscription = new Subscription();
+
+  constructor() {
+    this.subscription.add(
+      forkJoin([
+        this.#quizMakerService.initializeQuizCategories(),
+        this.#quizMakerService.initializeQuizDifficulties(),
+      ])
+      .subscribe()
+    );
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     // Handle first call before ngOnOnInit (form not yet initialized)
@@ -121,8 +128,8 @@ export class QuizFormComponent implements OnInit, OnDestroy {
       this.categoryControl.valueChanges
       .pipe(
         tap(category => {
-          // Emit selected category
-          this.selectCategory.emit(category!);
+          // Select category
+          this.#quizMakerService.selectCategory(category);
 
           // Reset subcategory (if existing)
           this.subcategoryControl?.reset();
@@ -136,10 +143,12 @@ export class QuizFormComponent implements OnInit, OnDestroy {
    * Submit event emitting a create quiz event to te parent
    */
   onSubmit() {
-    this.createQuiz.emit({
+    const quizConfig: QuizConfigModel = {
       category: this.categoryControl.value,
       subcategory: this.subcategoryControl?.value,
       difficulty: this.difficultyControl.value.value
-    });
+    };
+
+    this.#quizMakerService.createQuizLines(quizConfig).subscribe()
   }
 }
