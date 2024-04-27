@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, catchError, finalize, mergeMap, of, retry, tap, throwError } from 'rxjs';
+import { ROUTE_PATHS } from 'src/app/app.routes';
 import { ApiQuestionModel } from 'src/app/shared/models/api-question.model';
 import { QuizAnswerModel } from '../models/quiz-answer.model';
 import { QuizCategoryModel } from '../models/quiz-category.model';
@@ -189,7 +190,7 @@ export class QuizMakerService {
         tap(apiQuestions => {
           const quizLines = apiQuestions.map(apiQuestion => this.createQuizLineFromApiQuestion(apiQuestion));
           this.#quizLines.set(quizLines);
-          this.#router.navigate(['/quiz']);
+          this.#router.navigate([`/${ROUTE_PATHS.QUIZ}`]);
         }),
         // Handle error while creating quiz lines
         catchError((error: HttpErrorResponse) => {
@@ -262,7 +263,7 @@ export class QuizMakerService {
    * Show quiz results
    */
   showQuizResults(): void {
-    this.#router.navigate(['/result']);
+    this.#router.navigate([`/${ROUTE_PATHS.RESULT}`]);
   }
 
   /**
@@ -270,7 +271,7 @@ export class QuizMakerService {
    */
   createNewQuiz(): void {
     this.resetQuiz();
-    this.#router.navigate(['/home']);
+    this.#router.navigate([`/${ROUTE_PATHS.HOME}`]);
   }
 
   /**

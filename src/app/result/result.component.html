@@ -2,10 +2,10 @@
   <qzm-quiz-line [quizLine]="quizLine" [disabled]="true"/>
 }
 
-<qzm-result-score [quizLines]="quizLines()"/>
+<qzm-result-score data-testid="result" [quizLines]="quizLines()"/>
 
 <div class="action-buttons">
-  <button class="create-button" (click)="createNewQuiz()">
+  <button data-testid="reset-button" class="create-button" (click)="createNewQuiz()">
     New quiz
   </button>
 </div>

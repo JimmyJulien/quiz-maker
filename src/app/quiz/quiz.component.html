@@ -16,7 +16,11 @@
 
   @if (isQuizComplete()) {
     <div class="action-buttons">
-      <button class="submit-button" (click)="showResults()">
+      <button
+        data-testid="submit-button"
+        class="submit-button"
+        (click)="showResults()"
+      >
         Submit
       </button>
     </div>

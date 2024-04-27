@@ -3,6 +3,7 @@
   <div class="form-field">
     <div class="form-field-label">Category {{ areQuizCategoriesLoading() ? '(loading...)': '' }}</div>
     <qzm-quiz-input
+      data-testid="category-input"
       [formControlName]="CATEGORY_FIELD"
       [options]="quizCategories()"
       placeholder="Enter a category"
@@ -14,6 +15,7 @@
     <div class="form-field">
       <div class="form-field-label">Subcategory</div>
       <qzm-quiz-input
+        data-testid="subcategory-input"
         [formControlName]="SUBCATEGORY_FIELD"
         [options]="quizSubcategories()"
         placeholder="Enter a subcategory"
@@ -25,6 +27,7 @@
   <div class="form-field">
     <div class="form-field-label">Difficulty {{ areQuizDifficultiesLoading() ? '(loading...)': '' }}</div>
     <qzm-quiz-select
+      data-testid="difficulty-select"
       [formControlName]="DIFFICULTY_FIELD"
       [options]="quizDifficulties()"
       placeholder="Select a difficulty"
@@ -33,7 +36,12 @@
   </div>
 
   <!-- Create button -->
-  <button class="create-button" type="submit" [disabled]="form.invalid || isQuizLoading()">
+  <button
+    class="create-button"
+    data-testid="create-button"
+    [disabled]="form.invalid || isQuizLoading()"
+    type="submit"
+  >
     {{ isQuizLoading() ? 'Quiz loading...' : 'Create' }}
   </button>
 </form>
