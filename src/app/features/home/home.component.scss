@@ -1,5 +1,4 @@
 @use 'layout';
-@use 'colors';
 
 .loading {
   font-size: 2rem;
@@ -25,16 +24,16 @@ form {
     min-width: 8rem;
 
     &:disabled {
-      background-color: colors.$grey;
-      cursor: default;
+      background-color: var(--grey);
+      cursor: not-allowed;
     }
 
     &:not(:disabled) {
-      background-color: colors.$green;
+      background-color: var(--green);
       cursor: pointer;
 
       &:hover {
-        background-color: colors.$pink;
+        background-color: var(--pink);
       }
     }
   }

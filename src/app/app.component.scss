@@ -1,5 +1,4 @@
 @use 'layout';
-@use 'colors';
 
 $title-height: 99.2px;
 
@@ -17,8 +16,8 @@ $title-height: 99.2px;
   }
 
   .main-title {
-    background-color: colors.$black;
-    color: colors.$white;
+    background-color: var(--black);
+    color: var(--white);
     cursor: default;
     font-family: DarkerGrotesque;
     font-size: 4rem;

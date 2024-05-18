@@ -2,19 +2,19 @@
   <div class="quiz-question" [innerHTML]="quizLine().question"></div>
   <div class="quiz-answers">
     @for (answer of quizLine().answers; track $index) {
-      <button
-        class="quiz-button"
-        [ngClass]="answer | qzmAnswerColor:quizLine():disabled()"
-        [tabindex]="disabled() ? -1 : 0"
-        (click)="pickAnswer.emit({answer, question: quizLine().question})"
-      >
-        <span [innerHTML]="answer"></span>
-      </button>
+      <qzm-quiz-answer
+        class="quiz-answer"
+        [answer]="answer"
+        [correctAnswer]="quizLine().correctAnswer"
+        [userAnswer]="quizLine().userAnswer"
+        [disabled]="disabled()"
+        (pick)="pickAnswer.emit({answer, question: quizLine().question})"
+      />
     }
 
     @if (canQuestionBeChanged() && !disabled()) {
       <!-- Change question button -->
-      <button class="blue" (click)="changeQuizLine.emit(quizLine())">
+      <button class="blue" (click)="changeQuizLine.emit()">
         Change
       </button>
     }

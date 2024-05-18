@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { quizGuard } from './quiz/quiz.guard';
+import { quizGuard } from './features/quiz/quiz.guard';
 import { resultGuard } from './result/result.guard';
 
 export const ROUTE_PATHS = Object.freeze({
@@ -11,11 +11,11 @@ export const ROUTE_PATHS = Object.freeze({
 export const routes: Routes = [
   {
     path: ROUTE_PATHS.HOME,
-    loadComponent: () => import('./home/home.component').then(c => c.HomeComponent),
+    loadComponent: () => import('./features/home/home.component').then(c => c.HomeComponent),
   },
   {
     path: ROUTE_PATHS.QUIZ,
-    loadComponent: () => import('./quiz/quiz.component').then(c => c.QuizComponent),
+    loadComponent: () => import('./features/quiz/quiz.component').then(c => c.QuizComponent),
     canActivate: [quizGuard]
   },
   {

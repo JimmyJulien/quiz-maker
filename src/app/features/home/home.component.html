@@ -1,20 +1,21 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<form [formGroup]="form">
   <!-- Category dropdown -->
   <div class="form-field">
     <div class="form-field-label">Category {{ areQuizCategoriesLoading() ? '(loading...)': '' }}</div>
-    <qzm-quiz-input
+    <qzm-quiz-autocomplete
       data-testid="category-input"
       [formControlName]="CATEGORY_FIELD"
+      [loading]="areQuizCategoriesLoading()"
       [options]="quizCategories()"
       placeholder="Enter a category"
     />
   </div>
 
   <!-- Subcategory dropdown -->
-  @if (quizSubcategories().length) {
+  @if (quizSubcategories().length > 0) {
     <div class="form-field">
       <div class="form-field-label">Subcategory</div>
-      <qzm-quiz-input
+      <qzm-quiz-autocomplete
         data-testid="subcategory-input"
         [formControlName]="SUBCATEGORY_FIELD"
         [options]="quizSubcategories()"
@@ -25,7 +26,7 @@
 
   <!-- Difficulty dropdown -->
   <div class="form-field">
-    <div class="form-field-label">Difficulty {{ areQuizDifficultiesLoading() ? '(loading...)': '' }}</div>
+    <div class="form-field-label">Difficulty</div>
     <qzm-quiz-select
       data-testid="difficulty-select"
       [formControlName]="DIFFICULTY_FIELD"
@@ -38,9 +39,9 @@
   <!-- Create button -->
   <button
     class="create-button"
+    (click)="onSubmit()"
     data-testid="create-button"
-    [disabled]="form.invalid || isQuizLoading()"
-    type="submit"
+    [disabled]="!form.valid || isQuizLoading()"
   >
     {{ isQuizLoading() ? 'Quiz loading...' : 'Create' }}
   </button>

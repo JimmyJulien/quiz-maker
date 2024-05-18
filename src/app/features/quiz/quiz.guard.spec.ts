@@ -1,23 +1,23 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import { QuizMakerService } from "../shared/services/quiz-maker.service";
-import { resultGuard } from "./result.guard";
+import { QuizMakerService } from "src/app/shared/services/quiz-maker.service";
+import { quizGuard } from "./quiz.guard";
 
 function setup() {
-  const quizMakerServiceSpy = jasmine.createSpyObj<QuizMakerService>("QuizMakerService", ["isQuizComplete"]);
+  const quizMakerServiceSpy = jasmine.createSpyObj<QuizMakerService>("QuizMakerService", ["getQuizLines"]);
   const routerSpy = jasmine.createSpyObj<Router>("Router", ["parseUrl"]);
 
   const guard = () => {
     TestBed.configureTestingModule({
       providers: [
-        resultGuard,
+        quizGuard,
         { provide: QuizMakerService, useValue: quizMakerServiceSpy },
         { provide: Router, useValue: routerSpy }
       ]
     });
 
-    return TestBed.runInInjectionContext(resultGuard);
+    return TestBed.runInInjectionContext(quizGuard);
   };
 
   return {
@@ -27,21 +27,23 @@ function setup() {
   };
 }
 
-describe("resultGuard", () => {
-  it("should return true if quiz is complete", () => {
+describe("quizGuard", () => {
+  it("should return true if quiz lines are defined", () => {
     const { guard, quizMakerServiceSpy } = setup();
 
-    quizMakerServiceSpy.isQuizComplete.and.returnValue(signal(true));
+    quizMakerServiceSpy.getQuizLines.and.returnValue(signal([
+      { question: "Question", answers: ["Answer1"], correctAnswer: "Answer1", userAnswer: null }
+    ]));
 
     const result = guard();
 
     expect(result).toBe(true);
   });
 
-  it("should redirect to home if quiz is not complete", () => {
+  it("should redirect to home if quiz lines are not defined", () => {
     const { guard, quizMakerServiceSpy, routerSpy } = setup();
 
-    quizMakerServiceSpy.isQuizComplete.and.returnValue(signal(false));
+    quizMakerServiceSpy.getQuizLines.and.returnValue(signal([]));
 
     const result = guard();
 

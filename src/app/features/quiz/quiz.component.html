@@ -1,16 +1,25 @@
 @if (isQuizMakerKo()) {
-  <qzm-quiz-ko (reload)="onReload()"/>
+  <div class="unexpected-error" data-testid="unexpected-error">
+    An unexpected error occured...
+  </div>
+
+  <button class="reload-button" data-testid="reload-button" (click)="onReload()">
+    Reload the page
+  </button>
 }
 @else if (areQuizLinesLoading()) {
-  <div class="loading">Your quiz is loading...</div>
+  <div class="loading" data-testid="loading">
+    Your quiz is loading...
+  </div>
 }
 @else {
   @for (quizLine of quizLines(); track $index) {
     <qzm-quiz-line
+      data-testid="line"
       [quizLine]="quizLine"
       [canQuestionBeChanged]="canQuestionBeChanged()"
       (pickAnswer)="pickAnswer($event)"
-      (changeQuizLine)="changeQuizLine($event)"
+      (changeQuizLine)="changeQuizLine(quizLine)"
     />
   }
 

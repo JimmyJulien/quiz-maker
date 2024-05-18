@@ -1,0 +1,23 @@
+:host {
+  width: 100%;
+}
+
+.quiz-answer {
+  min-height: 3.5rem;
+  width: 100%;
+  background-color: var(--purple);
+
+  &.correct {
+    background-color: var(--green);
+  }
+
+  &.incorrect {
+    background-color: var(--red);
+  }
+
+  &:hover,
+  &.picked {
+    background-color: var(--pink);
+    text-decoration: underline;
+  }
+}

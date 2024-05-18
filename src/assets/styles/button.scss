@@ -1,5 +1,3 @@
-@use 'colors';
-
 // Button custom theme
 @mixin theme() {
   button {
@@ -13,7 +11,7 @@
     text-transform: uppercase;
     
     &:disabled {
-      background-color: colors.$grey;
+      background-color: var(--grey);
       cursor: default;
     }
 
@@ -21,19 +19,19 @@
       cursor: pointer;
 
       &.purple {
-        background-color: colors.$purple;
+        background-color: var(--purple);
       }
       
       &.green {
-        background-color: colors.$green;
+        background-color: var(--green);
       }
       
       &.blue {
-        background-color: colors.$blue;
+        background-color: var(--blue);
       }
 
       &:hover {
-        background-color: colors.$pink;
+        background-color: var(--pink);
       }
     }
   }

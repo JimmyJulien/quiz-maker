@@ -1,11 +1,9 @@
-@use 'colors';
-
 // Normalize body tag
 @mixin theme() {
   body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: colors.$yellow;
+    background-color: var(--yellow);
   }
 }

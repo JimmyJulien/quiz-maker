@@ -18,7 +18,7 @@ export class ResultComponent {
   readonly #quizMakerService = inject(QuizMakerService);
 
   /** Quiz lines from the quiz service */
-  quizLines = this.#quizMakerService.quizLines;
+  quizLines = this.#quizMakerService.getQuizLines();
 
   /**
    * Create a new Quiz
