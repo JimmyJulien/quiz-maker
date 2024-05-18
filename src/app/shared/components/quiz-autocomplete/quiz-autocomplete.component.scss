@@ -1,0 +1,51 @@
+
+@use 'layout';
+
+$common-width: 16rem;
+
+.input {
+  min-width: $common-width;
+
+  &[disabled] {
+    cursor: not-allowed;
+  }
+}
+
+.options {
+  $number-of-options: 5;
+  $option-height: 2.25rem;
+  
+  @include layout.flex($direction: column);
+  
+  background-color: var(--white);
+  border: dashed 3px;
+  border-top: none;
+  max-height: calc($number-of-options * $option-height);
+  min-width: $common-width;
+  overflow-y: scroll;
+  position: absolute;
+  scrollbar-width: none;
+  z-index: 2;
+  
+  .option {
+    $option-padding: 0.5rem;
+
+    min-width: $common-width;
+    padding: $option-padding;
+    width: calc($common-width - $option-padding);
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--purple);
+    }
+
+    &:focus-visible {
+      background-color: var(--purple);
+      outline: none;
+    }
+
+    &.selected {
+      background-color: var(--purple);
+    }
+  }
+}

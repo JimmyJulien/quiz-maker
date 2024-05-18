@@ -1,0 +1,8 @@
+<button
+  class="quiz-answer"
+  [ngClass]="answerClass()"
+  [tabindex]="disabled() ? -1 : 0"
+  (click)="pick.emit()"
+>
+  <span [innerHTML]="answer()"></span>
+</button>

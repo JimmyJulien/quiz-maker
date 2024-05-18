@@ -1,25 +1,40 @@
-<input
+<div
+  #input
   class="input"
-  [ngClass]="{disabled: disabled()}"
-  [placeholder]="placeholder()"
-  [formControl]="control"
-  [tabIndex]="disabled() ? -1 : 0"
-  readonly
-  (focus)="onInputFocus()"
-  (keydown.Shift.Tab)="onInputBlur()"
+  data-testid="input"
+  [ngClass]="{disabled: disabled() || loading()}"
+  [tabindex]="disabled() || loading() ? -1 : 0"
+  (keydown.enter)="onInputKeydownEnter()"
+  (keydown.space)="onInputKeydownSpace()"
+  (keydown.arrowdown)="onInputArrowDown()"
+  (keydown.arrowup)="onInputArrowUp()"
 >
+  @if(selectedOption()) {
+    <span class="selected-option">{{ selectedOption() | formatOption:optionFormatFn() }}</span>
+  }
+  @else {
+    <span class="placeholder">{{ placeholder() }}</span>
+  }
+</div>
 
-@if (options()?.length && areOptionsVisible()) {
-  <div class="options-container" [ngClass]="{disabled: disabled()}">
+@if (atLeastOneOption() && areOptionsVisible()) {
+  <div class="options" data-testid="options">
     @for (option of options(); track $index) {
       <div
+        #option
         class="option"
+        data-testid="option"
+        [ngClass]="{selected: option === selectedOption()}"
         tabindex="0"
         (click)="onOptionClick(option)"
-        (keydown.Enter)="onOptionClick(option)"
-        (keydown.Tab)="onOptionsTabKeydown($last)"
+        (keydown.arrowdown)="onOptionArrowDown($index)"
+        (keydown.arrowup)="onOptionArrowUp($index)"
+        (keydown.enter)="onOptionClick(option)"
+        (keydown.escape)="onOptionEscape()"
+        (keydown.tab)="$event.preventDefault()"
+        (keydown.shift.tab)="$event.preventDefault()"
       >
-        {{ optionFormatFn()!(option) }}
+        {{ option | formatOption:optionFormatFn() }}
       </div>
     }
   </div>

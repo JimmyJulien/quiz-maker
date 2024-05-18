@@ -1,5 +1,3 @@
-@if (quizLines()?.length) {
-  <div class="quiz-score" [ngClass]="quizLines() | qzmResultScoreColor">
-    {{ quizLines() | qzmResultScoreFormat }}
-  </div>
-}
+<div class="quiz-score" data-testid="score" [ngClass]="scoreColor()">
+  {{ scoreText() }}
+</div>

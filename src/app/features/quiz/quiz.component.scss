@@ -1,0 +1,23 @@
+@use 'layout';
+
+:host {
+  @include layout.flex(column, center, center);
+  padding: 1rem;
+}
+
+.action-buttons {
+  @include layout.flex($j-content: center, $a-items: center);
+  width: 100%;
+}
+
+.submit-button {
+  min-height: 4rem;
+  width: 25%;
+  font-size: 1.3rem;
+  font-weight: 900;
+  background-color: var(--green);
+
+  &:hover {
+    background-color: var(--pink);
+  }
+}

@@ -1,34 +1,62 @@
 @use 'layout';
-@use 'colors';
 
 $common-width: 16rem;
 
 .input {
+  background-color: white;
+  border: solid 3px;
+  cursor: default;
+  font-size: 1.1rem;
+  min-height: 1.5rem;
   min-width: $common-width;
-}
+  padding: 0.5rem;
 
-.options-container {
-  position: absolute;
-  z-index: 2;
-  @include layout.flex($direction: column);
-  border: dashed 3px;
-  border-top: none;
-  min-width: $common-width;
-  background-color: colors.$white;
+  &.disabled {
+    background-color: rgba(239, 239, 239, 0.3);
+    border-color: rgb(84, 84, 84);
+    cursor: not-allowed;
+  }
 
-  .option {
-    $option-padding: 0.5rem;
-    width: calc($common-width - $option-padding);
-    padding: $option-padding;
-    min-width: $common-width;
+  .text {
+    color: black;
+  }
 
-    &:hover {
-      cursor: pointer;
-      background-color: colors.$purple;
-    }
+  .placeholder {
+    color: grey;
   }
 }
 
-.disabled {
-  pointer-events: none;
+.options {
+  @include layout.flex($direction: column);
+  background-color: var(--white);
+  border: dashed 3px;
+  border-top: none;
+  max-height: calc(5 * 2.25rem);
+  min-width: $common-width;
+  overflow-y: scroll;
+  position: absolute;
+  scrollbar-width: none;
+  z-index: 2;
+
+  .option {
+    $option-padding: 0.5rem;
+
+    min-width: $common-width;
+    padding: $option-padding;
+    width: calc($common-width - $option-padding);
+
+    &:hover {
+      background-color: var(--purple);
+      cursor: pointer;
+    }
+
+    &:focus-visible {
+      background-color: var(--purple);
+      outline: none;
+    }
+
+    &.selected {
+      background-color: var(--purple);
+    }
+  }
 }

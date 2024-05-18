@@ -1,0 +1,48 @@
+<form [formGroup]="form">
+  <!-- Category dropdown -->
+  <div class="form-field">
+    <div class="form-field-label">Category {{ areQuizCategoriesLoading() ? '(loading...)': '' }}</div>
+    <qzm-quiz-autocomplete
+      data-testid="category-input"
+      [formControlName]="CATEGORY_FIELD"
+      [loading]="areQuizCategoriesLoading()"
+      [options]="quizCategories()"
+      placeholder="Enter a category"
+    />
+  </div>
+
+  <!-- Subcategory dropdown -->
+  @if (quizSubcategories().length > 0) {
+    <div class="form-field">
+      <div class="form-field-label">Subcategory</div>
+      <qzm-quiz-autocomplete
+        data-testid="subcategory-input"
+        [formControlName]="SUBCATEGORY_FIELD"
+        [options]="quizSubcategories()"
+        placeholder="Enter a subcategory"
+      />
+    </div>
+  }
+
+  <!-- Difficulty dropdown -->
+  <div class="form-field">
+    <div class="form-field-label">Difficulty</div>
+    <qzm-quiz-select
+      data-testid="difficulty-select"
+      [formControlName]="DIFFICULTY_FIELD"
+      [options]="quizDifficulties()"
+      placeholder="Select a difficulty"
+      [optionFormatFn]="formatQuizDifficultyFn"
+    />
+  </div>
+
+  <!-- Create button -->
+  <button
+    class="create-button"
+    (click)="onSubmit()"
+    data-testid="create-button"
+    [disabled]="!form.valid || isQuizLoading()"
+  >
+    {{ isQuizLoading() ? 'Quiz loading...' : 'Create' }}
+  </button>
+</form>

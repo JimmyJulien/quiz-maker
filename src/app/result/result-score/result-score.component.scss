@@ -1,5 +1,4 @@
 @use 'layout';
-@use 'colors';
 
 .quiz-score {
   @include layout.flex($j-content: center, $a-items: center);
@@ -10,14 +9,14 @@
   font-weight: 900;
 
   &.correct {
-    background-color: colors.$green;
+    background-color: var(--green);
   }
 
   &.neutral {
-    background-color: colors.$blue;
+    background-color: var(--blue);
   }
 
   &.incorrect {
-    background-color: colors.$red;
+    background-color: var(--red);
   }
 }

@@ -1,0 +1,32 @@
+<input
+  #input
+  class="input"
+  data-testid="input"
+  [disabled]="disabled() || loading()"
+  [placeholder]="placeholder()"
+  [tabindex]="disabled() || loading() ? -1 : 0"
+  (input)="onInput()"
+  (keydown.arrowdown)="onInputArrowDown()"
+  (keydown.arrowup)="onInputArrowUp()"
+>
+
+@if (atLeastOneOptionAfterFilter() && areOptionsVisible()) {
+  <div class="options" data-testid="options">
+    @for (option of optionsAfterFilter(); track $index) {
+      <div
+        #option
+        class="option"
+        [innerHTML]="option | qzmBoldFilter:input.value"
+        tabindex="0"
+        (click)="onOptionClick(option)"
+        (keydown.arrowdown)="onOptionArrowDown($index)"
+        (keydown.arrowup)="onOptionArrowUp($index)"
+        (keydown.enter)="onOptionClick(option)"
+        (keydown.escape)="onOptionEscape()"
+        (keydown.tab)="$event.preventDefault()"
+        (keydown.shift.tab)="$event.preventDefault()"
+      >
+      </div>
+    }
+  </div>
+}

@@ -1,16 +1,13 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Router } from '@angular/router';
 import { ROUTE_PATHS } from '../app.routes';
 import { QuizMakerService } from '../shared/services/quiz-maker.service';
 
-export const resultGuard: CanActivateFn = () => {
+export const resultGuard = () => {
 
   const quizMakerService = inject(QuizMakerService);
   const router = inject(Router);
 
-  const areQuizLinesDefined = quizMakerService.quizLines().length > 0;
   const isQuizComplete = quizMakerService.isQuizComplete();
-
-  return areQuizLinesDefined && isQuizComplete ? of(true) : router.parseUrl(`/${ROUTE_PATHS.HOME}`);;
+  return isQuizComplete() ? true : router.parseUrl(`/${ROUTE_PATHS.HOME}`);
 };

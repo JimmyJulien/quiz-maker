@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { ApiCategoryModel, ApiCategoryResponseModel } from '../models/api-category.model';
+import { ApiCategoryResponseModel } from '../models/api-category.model';
 import { QuizCategoryModel } from '../models/quiz-category.model';
 
 /** Service used to get categories from the Open Trivia Database API */
@@ -13,28 +13,17 @@ export class QuizCategoryService {
   readonly #http = inject(HttpClient);
 
   /**
-   * Get categories from Open Trivia Database API
-   * @returns the categories
-   */
-  private getApiCategories(): Observable<ApiCategoryModel[]> {
-    return this.#http.get<ApiCategoryResponseModel>('https://opentdb.com/api_category.php')
-    .pipe(
-      map(apiQuizCategoryResponse => apiQuizCategoryResponse.trivia_categories),
-    );
-  }
-
-  /**
    * Get quiz categories
    * @returns the quiz categories
    */
   getQuizCategories(): Observable<QuizCategoryModel[]> {
-    // Separator used to identify categories that need formatting
-    const separator = ': ';
-
-    return this.getApiCategories()
+    return this.#http.get<ApiCategoryResponseModel>('https://opentdb.com/api_category.php')
     .pipe(
-      map(categories =>
-        categories.map(category => {
+      map(apiQuizCategoryResponse =>
+        apiQuizCategoryResponse.trivia_categories.map(category => {
+          // Separator used to identify categories that need formatting
+          const separator = ': ';
+
           // If category name contains separator, split to get name and subcategory
           if(category.name.includes(separator)) {
             return {

@@ -1,8 +1,8 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, HostListener, forwardRef, input, model, signal } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, forwardRef, input, signal, viewChild, viewChildren } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { FormatOptionPipe } from '../../pipes/format-option.pipe';
 
-// TODO upgrade select with options
 @Component({
   selector: 'qzm-quiz-select',
   templateUrl: './quiz-select.component.html',
@@ -12,6 +12,7 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModu
   imports: [
     NgClass,
     ReactiveFormsModule,
+    FormatOptionPipe,
   ],
   providers: [
     {
@@ -24,66 +25,108 @@ import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModu
 export class QuizSelectComponent<T> implements ControlValueAccessor {
   
   /** Quiz select options */
-  options = input.required<T[] | null>();
-
-  /** Selected option */
-  selectedOption = signal<T | null>(null);
+  options = input.required<T[]>();
 
   /** Quiz select placeholder */
-  placeholder = input<string | null>(null);
+  placeholder = input<string>('');
+
+  loading = input<boolean>(false);
 
   /** Quiz select disabled state */
-  disabled = model<boolean>(false);
+  disabled = signal<boolean>(false);
 
   /** Option formatting function */
   optionFormatFn = input<((value: T | null) => string | null) | null>(null);
   
+  /** Selected option */
+  selectedOption = signal<T | null>(null);
+
+  atLeastOneOption = computed(() => {
+    return this.options().length > 0;
+  });
+
+  formattedSelectedOption = computed(() => {
+    const formatFn = this.optionFormatFn();
+
+    if(formatFn) {
+      return formatFn(this.selectedOption());
+    }
+
+    return this.selectedOption;
+  });
+
   /** Indicates if quiz select options are visible */
   areOptionsVisible = signal<boolean>(false);
 
-  /** Quiz select mouse over listener */
-  @HostListener('mouseover') onMouseover() {
-    if(!this.areOptionsVisible() && !this.disabled()) {
-      this.showOptions(true);
-    }
-  }
+  inputRef = viewChild<ElementRef<HTMLElement>>('input');
 
-  /** Quiz select mouse leave listener */
-  @HostListener('mouseleave') onMouseleave() {
-    if(this.areOptionsVisible() && !this.disabled()) {
-      this.showOptions(false);
-    }
-  }
+  optionRefs = viewChildren<ElementRef<HTMLElement>>('option');
 
-  /** Quiz select form control */
-  control = new FormControl<string | null>(null);
-  
   /** On change quiz select method (used for ControlValueAccessor implementation) */
   onChange: (value: T | null) => void = () => {};
 
   /** On touched quiz select method (used for ControlValueAccessor implementation) */
   onTouched: () => void = () => {};
 
-  /**
-   * Show options if quiz input is not disabled when user focus on input
-   */
-  onInputFocus(): void {
-    if(!this.disabled()) this.showOptions(true);
+  @HostListener('mouseenter')
+  onComponentMouseEnter(): void {
+    if(!this.disabled()) {
+      this.showOptions(true);
+    }
   }
 
-  /**
-   * Hide options when user blur input
-   */
-  onInputBlur(): void {
+  @HostListener('mouseleave')
+  onComponentMouseLeave(): void {
+    if(!this.disabled()) {
+      this.showOptions(false);
+    }
+  }
+
+  onInputKeydownEnter(): void {
+    if(!this.disabled()) {
+      this.showOptions(!this.areOptionsVisible());
+    }
+  }
+
+  onInputKeydownSpace(): void {
+    if(!this.disabled()) {
+      this.showOptions(!this.areOptionsVisible());
+    }
+  }
+
+  onInputArrowDown(): void {
+    this.showOptions(true);
+    setTimeout(() => {
+      this.optionRefs()[0].nativeElement.focus();
+    });
+  }
+
+  onInputArrowUp(): void {
+    this.showOptions(true);
+    setTimeout(() => {
+      this.optionRefs()[0].nativeElement.focus();
+    });
+  }
+
+  onOptionArrowDown(optionIndex: number): void {
+    const nextElement = this.optionRefs()[optionIndex + 1];
+
+    if(nextElement) {
+      nextElement.nativeElement.focus();
+    }
+  }
+
+  onOptionArrowUp(optionIndex: number): void {
+    const previousElement = this.optionRefs()[optionIndex - 1];
+
+    if(previousElement) {
+      previousElement.nativeElement.focus();
+    }
+  }
+
+  onOptionEscape(): void {
     this.showOptions(false);
-  }
-
-  /**
-   * Hide options when user press Tab key on the last option
-   * @param isLastOption indicates if the option is the last one
-   */
-  onOptionsTabKeydown(isLastOption: boolean): void {
-    if(isLastOption) this.showOptions(false);
+    this.inputRef()?.nativeElement.focus();
   }
 
   /**
@@ -92,17 +135,10 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
    */
   onOptionClick(option: T) {
     // Set selected option
-    this.selectedOption.set(option);
+    this.writeValue(option);
 
-    // Set option input
-    const optionFormatFn = this.optionFormatFn();
-    
-    if(optionFormatFn) {
-      this.control.setValue(optionFormatFn(option));
-    }
-
-    //Emit value change
-    this.onChange(this.selectedOption())
+    // Emit value change
+    this.onChange(option)
 
     // Hide options
     this.showOptions(false);
@@ -121,11 +157,7 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
    * @param newValue the new control value
    */
   writeValue(newValue: T): void {
-    const optionFormatFn = this.optionFormatFn();
-
-    if(optionFormatFn) {
-      this.control.setValue(optionFormatFn(newValue));
-    }
+    this.selectedOption.set(newValue);
   }
 
   /**
