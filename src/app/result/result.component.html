@@ -1,0 +1,11 @@
+@for (quizLine of quizLines(); track $index) {
+  <qzm-quiz-line [quizLine]="quizLine" [disabled]="true"/>
+}
+
+<qzm-result-score data-testid="result" [quizLines]="quizLines()"/>
+
+<div class="action-buttons">
+  <button data-testid="reset-button" class="create-button" (click)="createNewQuiz()">
+    New quiz
+  </button>
+</div>

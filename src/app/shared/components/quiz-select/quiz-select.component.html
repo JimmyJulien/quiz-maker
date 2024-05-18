@@ -1,0 +1,26 @@
+<input
+  class="input"
+  [ngClass]="{disabled: disabled()}"
+  [placeholder]="placeholder()"
+  [formControl]="control"
+  [tabIndex]="disabled() ? -1 : 0"
+  readonly
+  (focus)="onInputFocus()"
+  (keydown.Shift.Tab)="onInputBlur()"
+>
+
+@if (options()?.length && areOptionsVisible()) {
+  <div class="options-container" [ngClass]="{disabled: disabled()}">
+    @for (option of options(); track $index) {
+      <div
+        class="option"
+        tabindex="0"
+        (click)="onOptionClick(option)"
+        (keydown.Enter)="onOptionClick(option)"
+        (keydown.Tab)="onOptionsTabKeydown($last)"
+      >
+        {{ optionFormatFn()!(option) }}
+      </div>
+    }
+  </div>
+}

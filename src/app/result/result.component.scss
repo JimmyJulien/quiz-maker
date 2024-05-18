@@ -1,0 +1,19 @@
+@use 'layout';
+@use 'colors';
+
+.action-buttons {
+  @include layout.flex($j-content: center, $a-items: center);
+  width: 100%;
+}
+
+.create-button {
+  min-height: 4rem;
+  width: 25%;
+  font-size: 1.3rem;
+  font-weight: 900;
+  background-color: colors.$green;
+
+  &:hover {
+    background-color: colors.$pink;
+  }
+}

@@ -1,0 +1,41 @@
+@use 'layout';
+@use 'colors';
+
+.loading {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+form {
+  @include layout.flex($a-items: center, $direction: column, $gap: 1rem);
+  padding-top: 1rem;
+  
+  .form-field {
+    @include layout.flex($direction: column, $gap: 0.5rem);
+
+    .form-field-label {
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: default;
+    }
+  }
+
+  .create-button {
+    min-height: 3rem;
+    min-width: 8rem;
+
+    &:disabled {
+      background-color: colors.$grey;
+      cursor: default;
+    }
+
+    &:not(:disabled) {
+      background-color: colors.$green;
+      cursor: pointer;
+
+      &:hover {
+        background-color: colors.$pink;
+      }
+    }
+  }
+}

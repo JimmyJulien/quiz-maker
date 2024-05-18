@@ -3,9 +3,10 @@
 // Normalize html tag
 @mixin theme() {
   html {
+    background-color: colors.$yellow;
+    height: 100%;
     margin: 0;
     padding: 0;
-    height: 100%;
-    background-color: colors.$yellow;
+    scrollbar-width: none;
   }
 }
