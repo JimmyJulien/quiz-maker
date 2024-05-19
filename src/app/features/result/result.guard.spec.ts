@@ -1,7 +1,7 @@
 import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import { QuizMakerService } from "../shared/services/quiz-maker.service";
+import { QuizMakerService } from "../../shared/services/quiz-maker.service";
 import { resultGuard } from "./result.guard";
 
 function setup() {
