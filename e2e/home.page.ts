@@ -8,12 +8,12 @@ export class HomePage {
     this.page = page;
   }
 
-  get categoryInput() {
-    return this.page.getByTestId('category-input');
+  get categoryAutocomplete() {
+    return this.page.getByTestId('category-autocomplete');
   }
 
-  get subcategoryInput() {
-    return this.page.getByTestId('subcategory-input');
+  get subcategoryAutocomplete() {
+    return this.page.getByTestId('subcategory-autocomplete');
   }
 
   get difficultySelect() {
@@ -29,9 +29,10 @@ export class HomePage {
   }
 
   async selectCategory() {
-    await this.categoryInput.click();
-    const categories = await this.categoryInput.locator('.option');
-    await categories.nth(0).click();
+    const input = await this.categoryAutocomplete.getByTestId('input');
+    await input.click();
+    const options = await this.categoryAutocomplete.locator('.option');
+    await options.nth(0).click();
   }
   
   async selectDifficulty() {
@@ -41,7 +42,7 @@ export class HomePage {
   }
 
   async selectSubcategory() {
-    await this.subcategoryInput.click();
+    await this.subcategoryAutocomplete.click();
     await this.page.getByText('Books').click();
   }
 

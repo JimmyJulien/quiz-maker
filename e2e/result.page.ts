@@ -9,7 +9,7 @@ export class ResultPage {
   }
 
   get newQuizButton(): Locator {
-    return this.page.getByTestId('reset-button');
+    return this.page.getByTestId('new-quiz-button');
   }
 
   async createNewQuiz() {

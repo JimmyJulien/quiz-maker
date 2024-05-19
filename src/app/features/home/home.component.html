@@ -3,7 +3,7 @@
   <div class="form-field">
     <div class="form-field-label">Category {{ areQuizCategoriesLoading() ? '(loading...)': '' }}</div>
     <qzm-quiz-autocomplete
-      data-testid="category-input"
+      data-testid="category-autocomplete"
       [formControlName]="CATEGORY_FIELD"
       [loading]="areQuizCategoriesLoading()"
       [options]="quizCategories()"
@@ -16,7 +16,7 @@
     <div class="form-field">
       <div class="form-field-label">Subcategory</div>
       <qzm-quiz-autocomplete
-        data-testid="subcategory-input"
+        data-testid="subcategory-autocomplete"
         [formControlName]="SUBCATEGORY_FIELD"
         [options]="quizSubcategories()"
         placeholder="Enter a subcategory"
