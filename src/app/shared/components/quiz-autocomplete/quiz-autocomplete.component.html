@@ -11,7 +11,7 @@
 >
 
 @if (atLeastOneOptionAfterFilter() && areOptionsVisible()) {
-  <div class="options" data-testid="options">
+  <div class="options">
     @for (option of optionsAfterFilter(); track $index) {
       <div
         #option

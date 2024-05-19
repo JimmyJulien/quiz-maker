@@ -72,7 +72,7 @@ describe('HomeComponent', () => {
   it('should initialize with an empty category input', () => {
     // WHEN
     const {fixture, component} = setup();
-    const categoryInput = fixture.debugElement.query(By.css('[data-testid="category-input"]'));
+    const categoryInput = fixture.debugElement.query(By.css('[data-testid="category-autocomplete"]'));
     const categoryInputValue = component.categoryControl.value;
 
     // THEN
