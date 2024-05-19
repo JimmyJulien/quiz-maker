@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { QuizLineComponent } from '../shared/components/quiz-line/quiz-line.component';
-import { QuizMakerService } from '../shared/services/quiz-maker.service';
+import { QuizLineComponent } from '../../shared/components/quiz-line/quiz-line.component';
+import { QuizMakerService } from '../../shared/services/quiz-maker.service';
 import { ResultScoreComponent } from './result-score/result-score.component';
 
 @Component({

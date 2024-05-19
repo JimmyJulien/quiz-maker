@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { QuizLineModel } from '../shared/models/quiz-line.model';
-import { QuizMakerService } from '../shared/services/quiz-maker.service';
+import { QuizLineModel } from '../../shared/models/quiz-line.model';
+import { QuizMakerService } from '../../shared/services/quiz-maker.service';
 import { ResultComponent } from './result.component';
 
 function setup() {
