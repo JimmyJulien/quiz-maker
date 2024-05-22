@@ -44,5 +44,8 @@ Thumbs.db
 /blob-report/
 /playwright/.cache/
 
+# build
+/docs
 
+# NX
 .nx/cache
