@@ -23,6 +23,18 @@ function setup() {
 
 describe('QuizQuestionService', () => {
   describe('getApiQuestions', () => {
+    it('should throw an error when numberOfQuestions is less than 1', () => {
+      const { service } = setup();
+      const expectedErrorMessage = "Open Trivia API can only provide between 1 and 100 questions at a time";
+      expect(() => service.getApiQuestions(1, "easy", 0)).toThrowError(expectedErrorMessage);
+    });
+
+    it('should throw an error when numberOfQuestions is more than 100', () => {
+      const { service } = setup();
+      const expectedErrorMessage = "Open Trivia API can only provide between 1 and 100 questions at a time";
+      expect(() => service.getApiQuestions(1, "easy", 101)).toThrowError(expectedErrorMessage);
+    });
+
     it('should return an array of quiz questions', () => {
       const { service, httpClientSpy } = setup();
       const categoryId = 1;

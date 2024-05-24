@@ -18,9 +18,14 @@ export class QuizQuestionService {
    * @param difficultyValue the difficulty value used to select the questions
    * @returns the list of questions from the Trivia Database API
    */
-  getApiQuestions(categoryId: number, difficultyValue: string): Observable<ApiQuestionModel[]> {
+  getApiQuestions(categoryId: number, difficultyValue: string, numberOfQuestions = 5): Observable<ApiQuestionModel[]> {
+    // API doesn't support less than 1 question and more than 100
+    if(numberOfQuestions < 1 || numberOfQuestions > 100) {
+      throw new Error('Open Trivia API can only provide between 1 and 100 questions at a time');
+    }
+
     return this.#http.get<ApiQuestionResponseModel>(
-      `https://opentdb.com/api.php?amount=5&category=${categoryId}&difficulty=${difficultyValue}&type=multiple`
+      `https://opentdb.com/api.php?amount=${numberOfQuestions}&category=${categoryId}&difficulty=${difficultyValue}&type=multiple`
     )
     .pipe(
       map(apiQuizQuestionResponse => apiQuizQuestionResponse.results)
