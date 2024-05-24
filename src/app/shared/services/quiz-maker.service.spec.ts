@@ -640,7 +640,8 @@ describe('QuizMakerService', () => {
 
       quizMakerStateServiceSpy.get.withArgs('quizConfig').and.returnValue(signal(config));
       quizMakerStateServiceSpy.get.withArgs('quizCategories').and.returnValue(signal(quizCategories));
-
+      quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(quizLines));
+      
       service.changeQuizLine(quizLines[0])
       .pipe(
         isEmpty(),
@@ -673,18 +674,14 @@ describe('QuizMakerService', () => {
         },
       ];
 
-      const config: QuizConfigModel = {
-        category: 'Category 1',
-        difficulty: null,
-      };
-
       const quizCategories: QuizCategoryModel[] = [
         { id: 1, name: 'Category 1', subcategory: null },
         { id: 2, name: 'Category 2', subcategory: null },
       ];
 
-      quizMakerStateServiceSpy.get.withArgs('quizConfig').and.returnValue(signal(config));
+      quizMakerStateServiceSpy.get.withArgs('quizConfig').and.returnValue(signal(null));
       quizMakerStateServiceSpy.get.withArgs('quizCategories').and.returnValue(signal(quizCategories));
+      quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(quizLines));
 
       service.changeQuizLine(quizLines[0])
       .pipe(
@@ -725,6 +722,7 @@ describe('QuizMakerService', () => {
 
       quizMakerStateServiceSpy.get.withArgs('quizConfig').and.returnValue(signal(config));
       quizMakerStateServiceSpy.get.withArgs('quizCategories').and.returnValue(signal(null));
+      quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(quizLines));
 
       service.changeQuizLine(quizLines[0])
       .pipe(
@@ -736,8 +734,7 @@ describe('QuizMakerService', () => {
       .subscribe();
     });
 
-    // TODO should show a notification when no new question is found
-    it('should do nothing when no new question is found', () => {
+    it('should log an error and return EMPTY', () => {
       const initialQuizLines: QuizLineModel[] = [
         {
           question: 'Question 1',
@@ -761,58 +758,36 @@ describe('QuizMakerService', () => {
 
       const config: QuizConfigModel = {
         category: 'Category 1',
-        difficulty: 'Easy'
+        difficulty: 'Easy',
+        subcategory: 'Subcategory 1'
       };
 
       const quizCategories: QuizCategoryModel[] = [
-        { id: 1, name: 'Category 1', subcategory: null },
+        { id: 1, name: 'Category 1', subcategory: 'Subcategory 1' },
         { id: 2, name: 'Category 2', subcategory: null },
-      ];
-
-      const newApiQuestions: ApiQuestionModel[] = [
-        {
-          category: 'Category 1',
-          type: 'Multiple',
-          difficulty: 'easy',
-          question: 'Question 1',
-          incorrect_answers: ['Answer 1', 'Answer 2', 'Answer 3', 'Answer 4'],
-          correct_answer: 'Answer 1',
-        },
-        {
-          category: 'Category 1',
-          type: 'Multiple',
-          difficulty: 'easy',
-          question: 'Question 2',
-          incorrect_answers: ['Answer 1', 'Answer 2', 'Answer 3', 'Answer 4'],
-          correct_answer: 'Answer 1',
-        },
-        {
-          category: 'Category 1',
-          type: 'Multiple',
-          difficulty: 'easy',
-          question: 'Question 3',
-          incorrect_answers: ['Answer 1', 'Answer 2', 'Answer 3', 'Answer 4'],
-          correct_answer: 'Answer 1',
-        },
       ];
 
       quizMakerStateServiceSpy.get.withArgs('quizConfig').and.returnValue(signal(config));
       quizMakerStateServiceSpy.get.withArgs('quizCategories').and.returnValue(signal(quizCategories));
       quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(initialQuizLines));
-      questionServiceSpy.getApiQuestions.and.returnValue(of(newApiQuestions));
+      quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(initialQuizLines));
+
+      questionServiceSpy.getApiQuestions.and.returnValue(throwError(() => 'Error'));
+
+      const consoleErrorSpy = spyOn(console, 'error');
 
       service.changeQuizLine(initialQuizLines[0])
       .pipe(
         isEmpty(),
         tap((isEmpty) => {
+          expect(consoleErrorSpy).toHaveBeenCalledWith('Error on quiz line change', 'Error');
           expect(isEmpty).toBe(true);
         })
       )
       .subscribe();
     });
 
-
-    it('should replace thie quiz line with a new one', () => {
+    it('should replace the quiz line with a new one', () => {
       const initialQuizLines: QuizLineModel[] = [
         {
           question: 'Question 1',
@@ -875,6 +850,8 @@ describe('QuizMakerService', () => {
       quizMakerStateServiceSpy.get.withArgs('quizConfig').and.returnValue(signal(config));
       quizMakerStateServiceSpy.get.withArgs('quizCategories').and.returnValue(signal(quizCategories));
       quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(initialQuizLines));
+      quizMakerStateServiceSpy.get.withArgs('quizLines').and.returnValue(signal(initialQuizLines));
+
       questionServiceSpy.getApiQuestions.and.returnValue(of(newApiQuestions));
 
       service.changeQuizLine(initialQuizLines[0])

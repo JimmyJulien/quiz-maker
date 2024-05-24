@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { EMPTY, Observable, catchError, finalize, map, mergeMap, of, retry, tap, throwError } from 'rxjs';
+import { EMPTY, Observable, catchError, finalize, map, mergeMap, of, tap } from 'rxjs';
 import { ROUTE_PATHS } from 'src/app/app.routes';
 import { ApiQuestionModel } from 'src/app/shared/models/api-question.model';
 import { QuizAnswerModel } from '../models/quiz-answer.model';
@@ -196,6 +196,7 @@ export class QuizMakerService {
     const configCategory = actualQuizConfig()?.category;
     const configDifficulty = actualQuizConfig()?.difficulty;
     const categories = this.getQuizCategories();
+    const quizLines = this.getQuizLines();
 
     // If no category, no difficulty or no categories, stop stream
     if(!configCategory || !configDifficulty || !categories()) {
@@ -209,7 +210,7 @@ export class QuizMakerService {
     this.#stateService.set('areQuizLinesLoading', true);
 
     // Get a new api question
-    return this.#getNewApiQuestion(quizCategory.id, configDifficulty)
+    return this.#getNewApiQuestion(quizCategory.id, configDifficulty, quizLines().length)
     .pipe(
       tap(newApiQuestion => {
         // Replace quiz line
@@ -217,6 +218,11 @@ export class QuizMakerService {
 
         // Question can not be changed twice
         this.#stateService.set('canQuestionBeChanged', false);
+      }),
+      catchError((error: unknown) => {
+        console.error('Error on quiz line change', error);
+        // TODO add a notification
+        return EMPTY;
       }),
       finalize(() => {
         this.#stateService.set('areQuizLinesLoading', false);
@@ -354,8 +360,9 @@ export class QuizMakerService {
    * @param apiQuestions the api questions potentially containing the new question
    * @returns the new api question
    */
-  #getNewApiQuestion(categoryId: number, difficulty: string): Observable<ApiQuestionModel> {
-    return this.#questionService.getApiQuestions(categoryId, difficulty)
+  #getNewApiQuestion(categoryId: number, difficulty: string, numberOfQuestions: number): Observable<ApiQuestionModel> {
+    // NOTE: +1 because we want to get a question different from the actual ones
+    return this.#questionService.getApiQuestions(categoryId, difficulty, numberOfQuestions + 1)
     .pipe(
       // Select new API questions
       mergeMap(apiQuestions => {
@@ -366,21 +373,8 @@ export class QuizMakerService {
         // Get only questions different from the actual ones
         const newApiQuestions = apiQuestions.filter(apiQuestion => !actualQuestions.includes(apiQuestion.question));
 
-        // If no new question, throw error to launch retry
-        if(newApiQuestions.length === 0) {
-          return throwError(() => new Error('No new question found'));
-        }
-
-        // Else take first new api question
+        // Take first new api question
         return of(newApiQuestions[0]);
-      }),
-      // Retry 3 times
-      retry(3),
-      // If it's not enough, stop stream and show a notification
-      catchError(() => {
-        // TODO notification
-        console.warn('No new question found');
-        return EMPTY;
       })
     );
   }
