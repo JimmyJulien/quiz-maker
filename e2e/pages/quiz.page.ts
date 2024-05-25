@@ -17,7 +17,6 @@ export class QuizPage {
   }
 
   async pickAnswers(withChange: boolean = false) {
-
     if(withChange) {
       const firstLine = await this.lines.nth(0);
       const firstLineButtons = await firstLine.getByRole('button');
