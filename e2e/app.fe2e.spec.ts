@@ -10,7 +10,6 @@ const HOME_URL = `${SERVER_URL}/home`;
 const QUIZ_URL = `${SERVER_URL}/quiz`;
 const RESULT_URL = `${SERVER_URL}/result`;
 
-
 test('play a full quiz game without changing a question (mocked api calls)', async ({ page }) => {
   // Mock categories fetching
   await page.route(
