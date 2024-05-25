@@ -2,12 +2,11 @@
   #input
   class="input"
   data-testid="input"
-  [ngClass]="{disabled: disabled() || loading()}"
-  [tabindex]="disabled() || loading() ? -1 : 0"
+  [ngClass]="{disabled: disabled()}"
+  [tabindex]="disabled() ? -1 : 0"
   (keydown.enter)="onInputKeydownEnter()"
   (keydown.space)="onInputKeydownSpace()"
   (keydown.arrowdown)="onInputArrowDown()"
-  (keydown.arrowup)="onInputArrowUp()"
 >
   @if(selectedOption()) {
     <span class="selected-option">{{ selectedOption() | formatOption:optionFormatFn() }}</span>
@@ -17,7 +16,7 @@
   }
 </div>
 
-@if (atLeastOneOption() && areOptionsVisible()) {
+@if(atLeastOneOption() && areOptionsVisible()) {
   <div class="options" data-testid="options">
     @for (option of options(); track $index) {
       <div
@@ -30,7 +29,6 @@
         (keydown.arrowdown)="onOptionArrowDown($index)"
         (keydown.arrowup)="onOptionArrowUp($index)"
         (keydown.enter)="onOptionClick(option)"
-        (keydown.escape)="onOptionEscape()"
         (keydown.tab)="$event.preventDefault()"
         (keydown.shift.tab)="$event.preventDefault()"
       >

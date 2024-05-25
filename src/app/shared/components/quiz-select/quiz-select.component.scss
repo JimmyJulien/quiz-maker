@@ -17,6 +17,10 @@ $common-width: 16rem;
     cursor: not-allowed;
   }
 
+  &:focus-visible {
+    outline: solid 3px;
+  }
+
   .text {
     color: black;
   }
@@ -29,7 +33,7 @@ $common-width: 16rem;
 .options {
   @include layout.flex($direction: column);
   background-color: var(--white);
-  border: dashed 3px;
+  border: solid 3px;
   border-top: none;
   max-height: calc(5 * 2.25rem);
   min-width: $common-width;

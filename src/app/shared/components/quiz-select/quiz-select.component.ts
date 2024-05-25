@@ -28,9 +28,7 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
   options = input.required<T[]>();
 
   /** Quiz select placeholder */
-  placeholder = input<string>('');
-
-  loading = input<boolean>(false);
+  placeholder = input<string>('Select an option');
 
   /** Quiz select disabled state */
   disabled = signal<boolean>(false);
@@ -41,10 +39,12 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
   /** Selected option */
   selectedOption = signal<T | null>(null);
 
+  /** Indicates if there is at least one option */
   atLeastOneOption = computed(() => {
     return this.options().length > 0;
   });
 
+  /** Formatted selected option */
   formattedSelectedOption = computed(() => {
     const formatFn = this.optionFormatFn();
 
@@ -58,8 +58,10 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
   /** Indicates if quiz select options are visible */
   areOptionsVisible = signal<boolean>(false);
 
+  /** Input reference */
   inputRef = viewChild<ElementRef<HTMLElement>>('input');
 
+  /** List of option references */
   optionRefs = viewChildren<ElementRef<HTMLElement>>('option');
 
   /** On change quiz select method (used for ControlValueAccessor implementation) */
@@ -77,9 +79,13 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
 
   @HostListener('mouseleave')
   onComponentMouseLeave(): void {
-    if(!this.disabled()) {
-      this.showOptions(false);
-    }
+    this.showOptions(false);
+  }
+
+  @HostListener('keydown.escape')
+  onComponentKeydownEscape(): void {
+    this.showOptions(false);
+    this.inputRef()?.nativeElement.focus();
   }
 
   onInputKeydownEnter(): void {
@@ -95,17 +101,12 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
   }
 
   onInputArrowDown(): void {
-    this.showOptions(true);
-    setTimeout(() => {
-      this.optionRefs()[0].nativeElement.focus();
-    });
-  }
-
-  onInputArrowUp(): void {
-    this.showOptions(true);
-    setTimeout(() => {
-      this.optionRefs()[0].nativeElement.focus();
-    });
+    if(!this.disabled()) {
+      this.showOptions(true);
+      setTimeout(() => {
+        this.optionRefs()[0].nativeElement.focus();
+      });
+    }
   }
 
   onOptionArrowDown(optionIndex: number): void {
@@ -122,11 +123,6 @@ export class QuizSelectComponent<T> implements ControlValueAccessor {
     if(previousElement) {
       previousElement.nativeElement.focus();
     }
-  }
-
-  onOptionEscape(): void {
-    this.showOptions(false);
-    this.inputRef()?.nativeElement.focus();
   }
 
   /**
